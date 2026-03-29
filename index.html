@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PROTOKÓŁ URODZINOWY // KUBA-9</title>
+  <style>
+    /* ================================================================
+       RESET & VARIABLES
+    ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:      #00ff88;
+      --green-dim:  #00cc66;
+      --green-dark: #002211;
+      --blue:       #00aaff;
+      --blue-dim:   #0066cc;
+      --red:        #ff3355;
+      --yellow:     #ffcc00;
+      --bg:         #04080f;
+      --bg2:        #08101e;
+      --bg3:        #0d1828;
+      --border:     rgba(0, 255, 136, 0.25);
+      --text:       #b0eecf;
+      --text-dim:   #3d7a57;
+      --font:       'Courier New', Courier, monospace;
+      --radius:     4px;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+    }
+
+    /* CRT scanlines */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 3px,
+        rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px
+      );
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ================================================================
+       SCREENS
+    ================================================================ */
+    .screen {
+      position: fixed; inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px;
+      gap: 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .screen.active { display: flex; }
+
+    .screen-inner {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 24px;
+    }
+
+    /* ================================================================
+       BOOT SCREEN
+    ================================================================ */
+    #screen-boot {
+      background: var(--bg);
+      padding: 32px 24px;
+      justify-content: flex-start;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    #boot-log {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .boot-line {
+      opacity: 0;
+      white-space: pre-wrap;
+      transition: opacity 0.1s;
+    }
+    .boot-line.show { opacity: 1; }
+    .boot-line.c-green  { color: var(--green); }
+    .boot-line.c-blue   { color: var(--blue); }
+    .boot-line.c-red    { color: var(--red); }
+    .boot-line.c-yellow { color: var(--yellow); }
+    .boot-line.c-dim    { color: var(--text-dim); }
+
+    /* ================================================================
+       PANELS & LAYOUT
+    ================================================================ */
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      width: 100%;
+      position: relative;
+    }
+
+    .panel-glow {
+      box-shadow: 0 0 20px rgba(0,255,136,0.08), inset 0 0 20px rgba(0,255,136,0.03);
+    }
+
+    .panel-blue  { border-color: rgba(0,170,255,0.35); }
+    .panel-yellow{ border-color: rgba(255,204,0,0.4); }
+    .panel-red   { border-color: rgba(255,51,85,0.4); }
+    .panel-green { border-color: rgba(0,255,136,0.5); box-shadow: 0 0 16px rgba(0,255,136,0.15); }
+
+    /* ================================================================
+       TYPOGRAPHY
+    ================================================================ */
+    .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-dim);
+    }
+
+    h1 {
+      font-size: clamp(20px, 5vw, 30px);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--green);
+    }
+
+    h2 {
+      font-size: clamp(16px, 4vw, 22px);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+    }
+
+    .glitch {
+      position: relative;
+      animation: glitch 4s infinite;
+    }
+
+    @keyframes glitch {
+      0%,85%,100% { transform: translate(0); filter: none; }
+      86% { transform: translate(-3px,1px); filter: hue-rotate(20deg); }
+      88% { transform: translate(3px,-1px); filter: hue-rotate(-20deg); }
+      90% { transform: translate(-1px,2px); filter: hue-rotate(40deg); }
+      92% { transform: translate(1px,-2px); filter: hue-rotate(-40deg); }
+    }
+
+    .blink { animation: blink 1s step-end infinite; }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%     { opacity: 0; }
+    }
+
+    /* ================================================================
+       BUTTONS
+    ================================================================ */
+    .btn {
+      background: transparent;
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-family: var(--font);
+      font-size: clamp(13px, 3.5vw, 16px);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 14px 24px;
+      cursor: pointer;
+      border-radius: var(--radius);
+      transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+      min-height: 52px;
+      min-width: 180px;
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+    }
+
+    .btn::before { content: '▶ '; }
+
+    .btn:hover, .btn:active {
+      background: var(--green);
+      color: var(--bg);
+      box-shadow: 0 0 24px rgba(0,255,136,0.5);
+    }
+
+    .btn-blue {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+    .btn-blue::before { content: '► '; }
+    .btn-blue:hover, .btn-blue:active {
+      background: var(--blue);
+      color: var(--bg);
+      box-shadow: 0 0 24px rgba(0,170,255,0.5);
+    }
+
+    .btn-red {
+      border-color: var(--red);
+      color: var(--red);
+    }
+    .btn-red::before { content: '↩ '; }
+    .btn-red:hover, .btn-red:active {
+      background: var(--red);
+      color: var(--bg);
+      box-shadow: 0 0 24px rgba(255,51,85,0.5);
+    }
+
+    .btn-yellow {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+    .btn-yellow::before { content: '★ '; }
+    .btn-yellow:hover, .btn-yellow:active {
+      background: var(--yellow);
+      color: var(--bg);
+      box-shadow: 0 0 24px rgba(255,204,0,0.5);
+    }
+
+    .btn-sm {
+      min-height: 44px;
+      font-size: 13px;
+      padding: 10px 18px;
+      min-width: 140px;
+    }
+
+    /* ================================================================
+       MISSION SELECT
+    ================================================================ */
+    .mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .mission-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mission-card.locked {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .mission-card.completed {
+      border-color: rgba(0,255,136,0.5);
+      box-shadow: 0 0 14px rgba(0,255,136,0.15);
+    }
+
+    .mission-card:not(.locked):not(.completed):hover,
+    .mission-card:not(.locked):not(.completed):active {
+      border-color: var(--blue);
+      box-shadow: 0 0 14px rgba(0,170,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .m-num  { font-size: 10px; color: var(--text-dim); }
+    .m-icon { font-size: 28px; line-height: 1.2; }
+    .m-name { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue); font-weight: bold; }
+    .m-desc { font-size: 10px; color: var(--text-dim); }
+
+    .m-status {
+      font-size: 10px;
+      margin-top: auto;
+    }
+    .m-status.done      { color: var(--green); }
+    .m-status.available { color: var(--yellow); }
+    .m-status.locked    { color: var(--text-dim); }
+
+    /* ================================================================
+       PROGRESS
+    ================================================================ */
+    .progress-wrap {
+      width: 100%;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--bg3);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+
+    /* Codes display */
+    .codes-box {
+      background: var(--bg);
+      border: 1px solid var(--green);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      font-size: clamp(16px, 4vw, 22px);
+      letter-spacing: 0.35em;
+      color: var(--green);
+      text-align: center;
+      font-weight: bold;
+      width: 100%;
+      box-shadow: 0 0 10px rgba(0,255,136,0.1);
+    }
+
+    /* ================================================================
+       QUIZ (Mission 1)
+    ================================================================ */
+    .question-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--blue);
+      padding: 18px;
+      border-radius: var(--radius);
+      font-size: clamp(14px, 3.5vw, 16px);
+      line-height: 1.6;
+      width: 100%;
+      min-height: 80px;
+    }
+
+    .answers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .ans-btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: clamp(12px, 3vw, 14px);
+      padding: 14px 10px;
+      text-align: left;
+      cursor: pointer;
+      border-radius: var(--radius);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      min-height: 72px;
+      line-height: 1.4;
+    }
+
+    .ans-btn:hover, .ans-btn:active {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .ans-btn.correct {
+      border-color: var(--green) !important;
+      background: rgba(0,255,136,0.1) !important;
+      color: var(--green) !important;
+    }
+
+    .ans-btn.wrong {
+      border-color: var(--red) !important;
+      background: rgba(255,51,85,0.1) !important;
+      color: var(--red) !important;
+    }
+
+    .feedback-line {
+      font-size: 14px;
+      min-height: 28px;
+      text-align: center;
+    }
+
+    /* ================================================================
+       MATH (Mission 2)
+    ================================================================ */
+    .math-q-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--yellow);
+      padding: 22px 18px;
+      border-radius: var(--radius);
+      font-size: clamp(14px, 3.5vw, 16px);
+      line-height: 1.7;
+      text-align: center;
+      width: 100%;
+      white-space: pre-wrap;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .num-input {
+      background: var(--bg);
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-family: var(--font);
+      font-size: clamp(24px, 6vw, 36px);
+      padding: 12px 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 220px;
+      border-radius: var(--radius);
+      outline: none;
+      transition: box-shadow 0.2s;
+    }
+
+    .num-input:focus {
+      box-shadow: 0 0 20px rgba(0,255,136,0.35);
+    }
+
+    /* ================================================================
+       REFLEX (Mission 3)
+    ================================================================ */
+    #reflex-arena {
+      width: 100%;
+      max-width: 600px;
+      height: min(380px, 50vw);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .target-dot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: crosshair;
+      animation: target-appear 0.2s ease-out;
+    }
+
+    @keyframes target-appear {
+      from { transform: translate(-50%,-50%) scale(0.3); opacity: 0; }
+      to   { transform: translate(-50%,-50%) scale(1);   opacity: 1; }
+    }
+
+    .target-svg { animation: target-pulse 0.6s ease-in-out infinite alternate; }
+    @keyframes target-pulse {
+      from { transform: scale(0.9); opacity: 0.75; }
+      to   { transform: scale(1.1); opacity: 1; }
+    }
+
+    .timer-ring {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 3px solid var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--green);
+      box-shadow: 0 0 12px rgba(0,255,136,0.3);
+      transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
+      flex-shrink: 0;
+    }
+
+    .timer-ring.danger {
+      border-color: var(--red);
+      color: var(--red);
+      box-shadow: 0 0 12px rgba(255,51,85,0.4);
+    }
+
+    /* ================================================================
+       MEMORY (Mission 4)
+    ================================================================ */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .mem-card {
+      aspect-ratio: 1;
+      background: var(--bg2);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(24px, 8vw, 36px);
+      transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mem-card .front { display: none; }
+    .mem-card .back  { display: flex; font-size: 20px; color: var(--text-dim); }
+
+    .mem-card.flipped .front, .mem-card.matched .front { display: flex; }
+    .mem-card.flipped .back,  .mem-card.matched .back  { display: none; }
+
+    .mem-card.flipped { transform: scale(1.08); border-color: var(--blue); }
+    .mem-card.matched {
+      border-color: var(--green);
+      box-shadow: 0 0 12px rgba(0,255,136,0.3);
+    }
+
+    /* ================================================================
+       FIELD MISSION (Mission 5)
+    ================================================================ */
+    .clue-box {
+      background: var(--bg2);
+      border: 1px solid rgba(255,204,0,0.4);
+      border-left: 3px solid var(--yellow);
+      border-radius: var(--radius);
+      padding: 20px 18px;
+      font-size: clamp(13px, 3.5vw, 15px);
+      line-height: 1.8;
+      text-align: center;
+      white-space: pre-wrap;
+      width: 100%;
+      color: var(--text);
+    }
+
+    .field-input {
+      background: var(--bg);
+      border: 2px solid var(--blue);
+      color: var(--blue);
+      font-family: var(--font);
+      font-size: clamp(22px, 7vw, 32px);
+      padding: 14px 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 280px;
+      border-radius: var(--radius);
+      outline: none;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      transition: box-shadow 0.2s;
+    }
+
+    .field-input:focus {
+      box-shadow: 0 0 20px rgba(0,170,255,0.4);
+    }
+
+    /* ================================================================
+       VAULT / SUCCESS
+    ================================================================ */
+    .vault-codes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .code-fragment {
+      background: var(--bg2);
+      border: 2px solid var(--green);
+      color: var(--green);
+      padding: 10px 14px;
+      font-size: clamp(18px, 5vw, 26px);
+      font-weight: bold;
+      letter-spacing: 0.2em;
+      border-radius: var(--radius);
+      box-shadow: 0 0 14px rgba(0,255,136,0.25);
+      transition: transform 0.2s;
+    }
+
+    .master-code {
+      font-size: clamp(22px, 7vw, 36px);
+      color: var(--yellow);
+      font-weight: bold;
+      letter-spacing: 0.25em;
+      text-shadow: 0 0 20px rgba(255,204,0,0.4);
+    }
+
+    .trophy { font-size: 72px; line-height: 1; }
+
+    /* ================================================================
+       OVERLAYS
+    ================================================================ */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(4,8,15,0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      backdrop-filter: blur(6px);
+      padding: 20px;
+    }
+    .overlay.show { display: flex; }
+
+    .overlay-box {
+      background: var(--bg2);
+      border: 2px solid var(--green);
+      border-radius: 8px;
+      padding: 36px 28px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 0 60px rgba(0,255,136,0.2);
+      animation: pop-in 0.3s ease-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .overlay-box.box-red {
+      border-color: var(--red);
+      box-shadow: 0 0 60px rgba(255,51,85,0.2);
+    }
+
+    @keyframes pop-in {
+      from { transform: scale(0.75); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+
+    /* ================================================================
+       STARS / PARTICLES
+    ================================================================ */
+    #stars {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: rgba(0,255,136,0.5);
+      border-radius: 50%;
+      animation: twinkle linear infinite;
+    }
+
+    @keyframes twinkle {
+      0%,100% { opacity: 0.15; }
+      50%      { opacity: 0.7; }
+    }
+
+    .screen > * { position: relative; z-index: 1; }
+    .screen-inner > * { position: relative; z-index: 1; }
+
+    /* Confetti */
+    #confetti {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      overflow: hidden;
+    }
+
+    .conf-piece {
+      position: absolute;
+      top: -16px;
+      animation: conf-fall linear forwards;
+    }
+
+    @keyframes conf-fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Hit flash */
+    .hit-flash {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: hit-anim 0.4s ease-out forwards;
+    }
+
+    @keyframes hit-anim {
+      from { transform: translate(-50%,-50%) scale(1); opacity: 0.8; }
+      to   { transform: translate(-50%,-50%) scale(3); opacity: 0; }
+    }
+
+    /* Hint text */
+    .hint-text {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ================================================================
+       RESPONSIVE
+    ================================================================ */
+    @media (max-width: 420px) {
+      .answers-grid { grid-template-columns: 1fr; }
+      .memory-grid  { gap: 6px; }
+    }
+
+    @media (min-width: 600px) {
+      .screen { padding: 24px; }
+      .screen-inner { gap: 18px; }
+    }
+
+    /* Header stripe */
+    .mission-header {
+      text-align: center;
+      width: 100%;
+      padding: 4px 0;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-radius: 2px;
+      border: 1px solid currentColor;
+    }
+
+    .badge-green  { color: var(--green);  background: rgba(0,255,136,0.08); }
+    .badge-yellow { color: var(--yellow); background: rgba(255,204,0,0.08); }
+    .badge-red    { color: var(--red);    background: rgba(255,51,85,0.08); }
+    .badge-blue   { color: var(--blue);   background: rgba(0,170,255,0.08); }
+
+    /* Numbers keypad for tablets */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-width: 260px;
+      width: 100%;
+    }
+
+    .numpad-btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 22px;
+      padding: 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
+      text-align: center;
+    }
+
+    .numpad-btn:hover, .numpad-btn:active {
+      background: var(--green-dark);
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .numpad-display {
+      background: var(--bg);
+      border: 2px solid var(--green);
+      color: var(--green);
+      font-size: 36px;
+      padding: 12px 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 260px;
+      border-radius: var(--radius);
+      min-height: 68px;
+      letter-spacing: 0.1em;
+      font-family: var(--font);
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: center;
+      animation: blink 2s step-end infinite;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background stars -->
+<div id="stars"></div>
+<!-- Confetti container -->
+<div id="confetti"></div>
+
+<!-- ================================================================
+     SCREEN: BOOT
+================================================================ -->
+<div class="screen active" id="screen-boot">
+  <div id="boot-log"></div>
+</div>
+
+<!-- ================================================================
+     SCREEN: BRIEFING
+================================================================ -->
+<div class="screen" id="screen-briefing">
+  <div class="screen-inner">
+
+    <div class="panel panel-glow" style="text-align:center;">
+      <div class="label" style="margin-bottom:8px;">TRANSMISJA ZASZYFROWANA // POZIOM ALFA</div>
+      <h1 class="glitch" id="agent-title">AGENT: KUBA</h1>
+      <div style="margin-top:8px; font-size:12px; color:var(--text-dim);">
+        ID: KUB-009 &nbsp;|&nbsp; CLEARANCE: <span style="color:var(--yellow);">TOP SECRET</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="label" style="margin-bottom:12px;">// KOMUNIKAT OD DOWÓDZTWA //</div>
+      <div id="briefing-text" style="font-size:14px; line-height:1.85; color:var(--text);"></div>
+    </div>
+
+    <div class="panel">
+      <div class="label" style="margin-bottom:10px;">// PARAMETRY MISJI //</div>
+      <div class="stat-row">
+        <span class="label">AGENT</span>
+        <span style="color:var(--green); font-size:13px;">KUBA &nbsp;// KOD 009</span>
+      </div>
+      <div class="stat-row">
+        <span class="label">WIEK OPERACYJNY</span>
+        <span style="color:var(--green); font-size:13px;">9 LAT</span>
+      </div>
+      <div class="stat-row">
+        <span class="label">LICZBA MISJI</span>
+        <span style="color:var(--yellow); font-size:13px;">5 ZADAŃ</span>
+      </div>
+      <div class="stat-row">
+        <span class="label">CEL</span>
+        <span style="color:var(--blue); font-size:13px;">SKARBIEC URODZINOWY</span>
+      </div>
+      <div class="stat-row">
+        <span class="label">STATUS</span>
+        <span class="badge badge-yellow blink">AKTYWNY</span>
+      </div>
+    </div>
+
+    <button class="btn" id="btn-to-missions">ZAAKCEPTUJ MISJĘ</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: MISSION SELECT
+================================================================ -->
+<div class="screen" id="screen-missions">
+  <div class="screen-inner">
+
+    <div class="mission-header">
+      <div class="label">PROTOKÓŁ URODZINOWY // CENTRUM DOWODZENIA</div>
+      <h2 style="margin-top:4px;">WYBIERZ MISJĘ</h2>
+    </div>
+
+    <div class="progress-wrap panel" style="padding:14px 18px;">
+      <div class="stat-row">
+        <span class="label">POSTĘP OPERACJI</span>
+        <span id="progress-text" style="color:var(--green); font-size:13px;">0 / 5</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="mission-grid" id="mission-grid">
+      <!-- filled by JS -->
+    </div>
+
+    <div style="width:100%">
+      <div class="label" style="margin-bottom:6px;">ZEBRANE FRAGMENTY KODU</div>
+      <div class="codes-box" id="codes-display">_ _ _ _ _ _ _ _ _ _</div>
+    </div>
+
+    <button class="btn btn-yellow" id="btn-go-vault" style="display:none;">OTWÓRZ SKARBIEC</button>
+    <button class="btn btn-red btn-sm" id="btn-reset" style="max-width:220px; font-size:11px;">↺ RESETUJ POSTĘP</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: MISSION 1 — QUIZ
+================================================================ -->
+<div class="screen" id="screen-mission1">
+  <div class="screen-inner">
+
+    <div class="mission-header">
+      <div class="label">MISJA 01 // WERYFIKACJA AGENTA</div>
+      <h2>Quiz Wiedzy</h2>
+    </div>
+
+    <div class="panel" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding:12px 18px;">
+      <span id="q-num" class="label" style="font-size:11px;">PYTANIE 1 / 6</span>
+      <div class="progress-bar" style="flex:1; min-width:80px; margin:0 10px;">
+        <div class="progress-fill" id="q-prog" style="width:16.6%"></div>
+      </div>
+      <span id="q-score" style="color:var(--green); font-size:13px;">✓ 0</span>
+    </div>
+
+    <div class="question-box" id="q-text">Pytanie...</div>
+
+    <div class="answers-grid" id="q-answers"></div>
+
+    <div class="feedback-line" id="q-feedback"></div>
+
+    <button class="btn btn-red btn-sm" onclick="goToMissions()">WRÓĆ DO BAZY</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: MISSION 2 — MATH
+================================================================ -->
+<div class="screen" id="screen-mission2">
+  <div class="screen-inner">
+
+    <div class="mission-header">
+      <div class="label">MISJA 02 // OBLICZENIA SZYFROWE</div>
+      <h2>Łamigłówki Matematyczne</h2>
+    </div>
+
+    <div class="panel" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px;">
+      <span id="math-num" class="label" style="font-size:11px;">ZADANIE 1 / 4</span>
+      <span id="math-score" style="color:var(--green); font-size:13px;">✓ 0 / 4</span>
+    </div>
+
+    <div class="math-q-box" id="math-q">Zadanie...</div>
+
+    <!-- Custom numpad for tablet -->
+    <div class="numpad-display" id="math-display">_</div>
+
+    <div class="numpad" id="math-numpad">
+      <!-- Filled by JS -->
+    </div>
+
+    <div class="feedback-line" id="math-feedback"></div>
+
+    <button class="btn" onclick="checkMath()">SPRAWDŹ</button>
+    <button class="btn btn-red btn-sm" onclick="goToMissions()">WRÓĆ DO BAZY</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: MISSION 3 — REFLEX
+================================================================ -->
+<div class="screen" id="screen-mission3">
+  <div class="screen-inner">
+
+    <div class="mission-header">
+      <div class="label">MISJA 03 // TEST REFLEKSÓW</div>
+      <h2>Neutralizuj Cele</h2>
+    </div>
+
+    <div class="panel" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px;">
+      <div style="text-align:center;">
+        <div class="label">TRAFIONO</div>
+        <div id="r-hits" style="font-size:24px; color:var(--green); font-weight:bold;">0</div>
+        <div class="label">/ 10</div>
+      </div>
+      <div class="timer-ring" id="r-timer">30</div>
+      <div style="text-align:center;">
+        <div class="label">CHYBIONO</div>
+        <div id="r-miss" style="font-size:24px; color:var(--red); font-weight:bold;">0</div>
+      </div>
+    </div>
+
+    <div id="reflex-arena">
+      <div id="reflex-start" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;text-align:center;">
+        <div style="font-size:36px;">🎯</div>
+        <div style="font-size:14px; color:var(--text-dim); line-height:1.6;">
+          Cele będą się pojawiać na ekranie.<br>
+          Klikaj je szybko! Trafij <strong style="color:var(--green);">10 celów</strong> zanim<br>
+          skończy się <strong style="color:var(--yellow);">30 sekund</strong>.
+        </div>
+        <button class="btn btn-sm" onclick="startReflex()">ROZPOCZNIJ TEST</button>
+      </div>
+    </div>
+
+    <button class="btn btn-red btn-sm" onclick="stopReflex(); goToMissions()">WRÓĆ DO BAZY</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: MISSION 4 — MEMORY
+================================================================ -->
+<div class="screen" id="screen-mission4">
+  <div class="screen-inner">
+
+    <div class="mission-header">
+      <div class="label">MISJA 04 // PAMIĘĆ OPERACYJNA</div>
+      <h2>Znajdź Pary</h2>
+    </div>
+
+    <div class="panel" style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px;">
+      <div style="text-align:center;">
+        <div class="label">PARY</div>
+        <div id="m-pairs" style="font-size:22px; color:var(--green); font-weight:bold;">0/6</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="label">PRÓBY</div>
+        <div id="m-tries" style="font-size:22px; color:var(--yellow); font-weight:bold;">0</div>
+      </div>
+    </div>
+
+    <div class="memory-grid" id="memory-grid"></div>
+
+    <button class="btn btn-red btn-sm" onclick="goToMissions()">WRÓĆ DO BAZY</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: MISSION 5 — FIELD
+================================================================ -->
+<div class="screen" id="screen-mission5">
+  <div class="screen-inner">
+
+    <div class="mission-header">
+      <div class="label">MISJA 05 // MISJA TERENOWA</div>
+      <h2>Operacja Realna</h2>
+    </div>
+
+    <div class="clue-box" id="field-clue"></div>
+
+    <div class="panel" style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px;">
+      <div class="label">WPROWADŹ KOD Z LOKALIZACJI</div>
+      <input type="text" class="field-input" id="field-input"
+             maxlength="8" placeholder="??????"
+             autocomplete="off" autocorrect="off" autocapitalize="characters"
+             spellcheck="false">
+      <div class="feedback-line" id="field-feedback"></div>
+    </div>
+
+    <button class="btn" onclick="checkField()">POTWIERDŹ KOD</button>
+    <button class="btn btn-red btn-sm" onclick="goToMissions()">WRÓĆ DO BAZY</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: VAULT
+================================================================ -->
+<div class="screen" id="screen-vault">
+  <div class="screen-inner" style="text-align:center;">
+
+    <div class="label">PROTOKÓŁ URODZINOWY // SKARBIEC</div>
+    <h1 class="glitch" style="font-size:clamp(18px,5vw,26px);">WSZYSTKIE MISJE UKOŃCZONE!</h1>
+
+    <div class="panel">
+      <div class="label" style="margin-bottom:14px;">FRAGMENTY KODU</div>
+      <div class="vault-codes" id="vault-codes"></div>
+    </div>
+
+    <div class="panel panel-yellow">
+      <div class="label" style="color:var(--yellow); margin-bottom:10px;">⭐ MASTER KOD — POKAŻ RODZICOM ⭐</div>
+      <div class="master-code" id="master-code-display"></div>
+      <div style="margin-top:8px; font-size:12px; color:var(--text-dim);">Wpisz ten kod żeby odebrać urodzinowe nagrody!</div>
+    </div>
+
+    <div style="font-size:44px; letter-spacing:8px;">🎂🎉🎁🏆</div>
+
+    <button class="btn btn-yellow" onclick="showSuccess()">ODBIERZ NAGRODY!</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     SCREEN: SUCCESS
+================================================================ -->
+<div class="screen" id="screen-success">
+  <div class="screen-inner" style="text-align:center;">
+
+    <div class="trophy">🏆</div>
+    <h1 class="glitch" style="color:var(--yellow); font-size:clamp(18px,5vw,28px);">MISJA ZAKOŃCZONA!</h1>
+    <div style="color:var(--green); font-size:14px; text-transform:uppercase; letter-spacing:0.15em;">
+      Agent Kuba — Status: <span style="color:var(--yellow);">ELITA</span>
+    </div>
+
+    <div class="panel panel-glow">
+      <div style="font-size:14px; line-height:2; color:var(--text);">
+        Gratulacje, Agent Kuba! 🎉<br>
+        Przeszedłeś przez <span style="color:var(--green);">wszystkie 5 misji</span><br>
+        i udowodniłeś, że jesteś najlepszym<br>
+        agentem w historii Protokołu Urodzinowego!<br><br>
+        <span style="color:var(--yellow);">Teraz czas świętować! 🎂🎁</span>
+      </div>
+    </div>
+
+    <div class="panel panel-yellow" style="text-align:center;">
+      <div class="label" style="color:var(--yellow); margin-bottom:8px;">TWÓJ KOD NAGRODY</div>
+      <div class="master-code" id="success-code"></div>
+    </div>
+
+    <button class="btn btn-blue" onclick="goToMissions()">← POWRÓT DO CENTRUM</button>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     OVERLAY: MISSION COMPLETE
+================================================================ -->
+<div class="overlay" id="ov-complete">
+  <div class="overlay-box">
+    <div style="font-size:52px;">✅</div>
+    <h2 style="color:var(--green);">MISJA ZALICZONA!</h2>
+    <div class="label">NOWY FRAGMENT KODU ODBLOKOWANY</div>
+    <div class="codes-box" id="ov-code" style="font-size:32px; letter-spacing:0.5em; max-width:200px;">??</div>
+    <div id="ov-msg" style="font-size:13px; color:var(--text-dim); line-height:1.6;"></div>
+    <button class="btn btn-sm" id="ov-btn">DALEJ</button>
+  </div>
+</div>
+
+<!-- ================================================================
+     OVERLAY: GAME OVER
+================================================================ -->
+<div class="overlay" id="ov-gameover">
+  <div class="overlay-box box-red">
+    <div style="font-size:52px;">❌</div>
+    <h2 style="color:var(--red);">MISJA NIEUDANA</h2>
+    <div id="ov-fail-msg" style="font-size:13px; color:var(--text-dim); line-height:1.6; text-align:center;"></div>
+    <button class="btn btn-sm" id="ov-retry-btn">SPRÓBUJ PONOWNIE</button>
+    <button class="btn btn-red btn-sm" onclick="closeOverlays(); goToMissions()">DO BAZY</button>
+  </div>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
+<script>
+/* ================================================================
+   ██████╗ ██████╗ ██████╗ ████████╗ ██████╗  ██████╗ ██╗
+   ██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗██╔════╝ ██║
+   ██████╔╝██████╔╝██║  ██║   ██║   ██║   ██║██║      ██║
+   ██╔═══╝ ██╔══██╗██║  ██║   ██║   ██║   ██║██║      ██║
+   ██║     ██║  ██║██████╔╝   ██║   ╚██████╔╝╚██████╗ ███████╗
+   ╚═╝     ╚═╝  ╚═╝╚═════╝    ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝
+   PROTOKÓŁ URODZINOWY — v1.0
+   ----------------------------------------------------------------
+   KONFIGURACJA — edytuj poniżej żeby dostosować grę
+================================================================ */
+
+const CONFIG = {
+  // Dane agenta
+  agentName: "KUBA",
+  agentAge:  9,
+
+  // Kody dla każdej misji (maks. 4 znaki każdy)
+  // Te kody składają się na MASTER KOD wyświetlany na końcu
+  missionCodes: ["KU", "BA", "07", "XY", "ZZ"],
+
+  // === MISJA TERENOWA ===
+  // Napisz ten kod na karteczce i ukryj w miejscu z podpowiedzi!
+  fieldCode: "AGENT",
+
+  // Podpowiedź dla misji terenowej (wyświetlana na ekranie)
+  fieldClue: `🔍 ALERT OPERACYJNY 🔍
+
+Twoja ostatnia misja przenosi Cię
+do świata rzeczywistego, Agencie Kuba!
+
+Udaj się na miejsce, gdzie każdego ranka
+otwierasz oczy i zaczynasz nowy dzień.
+
+Sprawdź pod poduszką — tam czeka
+szyfrowana koperta z tajnym kodem.
+
+Znajdź go i wpisz poniżej!`,
+};
+
+/* ================================================================
+   DANE MISJI
+================================================================ */
+const MISSIONS_DATA = [
+  { id:1, name:"Weryfikacja Agenta",   icon:"🎮", desc:"Quiz wiedzy",          screen:"screen-mission1" },
+  { id:2, name:"Obliczenia Szyfrowe",  icon:"🔢", desc:"Matematyka & logika",  screen:"screen-mission2" },
+  { id:3, name:"Test Refleksów",       icon:"🎯", desc:"Mini-gra reflexowa",   screen:"screen-mission3" },
+  { id:4, name:"Pamięć Operacyjna",    icon:"🧠", desc:"Gra memory",           screen:"screen-mission4" },
+  { id:5, name:"Misja Terenowa",       icon:"🌍", desc:"Wyjdź z tabletu!",     screen:"screen-mission5" },
+];
+
+/* ================================================================
+   PYTANIA QUIZOWE — mix Minecraft, Roblox, Piłka nożna
+================================================================ */
+const QUIZ_QUESTIONS = [
+  // === MINECRAFT ===
+  {
+    q:  "Jak się nazywa zielony eksplodujący potwór w Minecraft?",
+    ans: ["Zombie", "Creeper", "Skeleton", "Slime"],
+    ok:  1,
+    tag: "⛏️ Minecraft",
+  },
+  {
+    q:  "Z czego buduje się portal do Netheru w Minecraft?",
+    ans: ["Z kamienia", "Z żelaza", "Z obsydianu", "Z diamentu"],
+    ok:  2,
+    tag: "⛏️ Minecraft",
+  },
+  {
+    q:  "Jak się nazywa ostatni boss w Minecraft, którego musisz pokonać żeby zobaczyć napisy końcowe?",
+    ans: ["Wither", "Ender Dragon", "Elder Guardian", "Warden"],
+    ok:  1,
+    tag: "⛏️ Minecraft",
+  },
+  {
+    q:  "Ile serc życia (HP) ma Steve/Alex na początku gry w trybie Survival?",
+    ans: ["5 serc", "8 serc", "10 serc", "20 serc"],
+    ok:  2,
+    tag: "⛏️ Minecraft",
+  },
+  // === ROBLOX ===
+  {
+    q:  "Jak nazywa się waluta (pieniądze) w Roblox?",
+    ans: ["Coins", "Gems", "Robux", "Credits"],
+    ok:  2,
+    tag: "🎮 Roblox",
+  },
+  {
+    q:  "W którym roku powstała gra Roblox?",
+    ans: ["2000", "2004", "2006", "2010"],
+    ok:  2,
+    tag: "🎮 Roblox",
+  },
+  {
+    q:  "Jak się nazywa popularna gra na Roblox, gdzie uciekasz przed katastrofami?",
+    ans: ["Murder Mystery", "Natural Disaster Survival", "Tower of Hell", "Brookhaven"],
+    ok:  1,
+    tag: "🎮 Roblox",
+  },
+  // === PIŁKA NOŻNA ===
+  {
+    q:  "Ile drużyn gra razem na boisku w piłce nożnej (z obu stron łącznie)?",
+    ans: ["18", "20", "22", "24"],
+    ok:  2,
+    tag: "⚽ Piłka nożna",
+  },
+  {
+    q:  "Ile razy Polska wygrała Mistrzostwa Świata w piłce nożnej?",
+    ans: ["Nigdy", "1 raz", "2 razy", "3 razy"],
+    ok:  0,
+    tag: "⚽ Piłka nożna",
+  },
+  {
+    q:  "Jak się nazywa trofeum wręczane zwycięzcy Mistrzostw Świata FIFA?",
+    ans: ["Złoty Puchar", "Trofeum FIFA", "Złota Piłka", "Puchar Świata FIFA"],
+    ok:  3,
+    tag: "⚽ Piłka nożna",
+  },
+  {
+    q:  "Ile metrów ma bramka piłkarska (szerokość)?",
+    ans: ["6,32 m", "7,32 m", "8,32 m", "9,32 m"],
+    ok:  1,
+    tag: "⚽ Piłka nożna",
+  },
+];
+
+/* ================================================================
+   ZADANIA MATEMATYCZNE
+================================================================ */
+const MATH_QUESTIONS = [
+  {
+    q:   "Agent Kuba ma 47 jednostek energii.\nZużywa 13 na hakerowanie\ni 8 na ucieczkę z bazy.\n\nIle mu zostało?",
+    ans: 26,
+    hint:"47 − 13 − 8 = ?",
+  },
+  {
+    q:   "Szyfr kryje sekwencję:\n2 → 4 → 8 → 16 → ___\n\nJaka liczba jest następna?",
+    ans: 32,
+    hint:"Każda liczba jest 2× większa!",
+  },
+  {
+    q:   "Stadion piłkarski ma 9 sektorów.\nW każdym sektorze siedzi 6 agentów.\n\nIlu agentów jest łącznie?",
+    ans: 54,
+    hint:"9 × 6 = ?",
+  },
+  {
+    q:   "Baza agentów jest oddalona\no 144 metry od miejsca misji.\nAgenci pokonali już połowę drogi.\n\nIle metrów zostało?",
+    ans: 72,
+    hint:"Połowa z 144 = ?",
+  },
+];
+
+/* ================================================================
+   KARTY MEMORY — emoji par
+================================================================ */
+const MEMORY_EMOJIS = ["⛏️", "💎", "⚽", "🗡️", "🍎", "🎮"];
+
+/* ================================================================
+   STAN GRY
+================================================================ */
+function loadState() {
+  try {
+    return {
+      completed: new Set(JSON.parse(localStorage.getItem("pb_done") || "[]")),
+    };
+  } catch(e) {
+    return { completed: new Set() };
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem("pb_done", JSON.stringify([...G.completed]));
+  } catch(e) {}
+}
+
+const G = loadState();
+
+/* ================================================================
+   SCREEN MANAGEMENT
+================================================================ */
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add("active");
+    el.scrollTop = 0;
+  }
+}
+
+function goToMissions() {
+  closeOverlays();
+  buildMissionGrid();
+  showScreen("screen-missions");
+}
+
+/* ================================================================
+   STARS
+================================================================ */
+(function createStars() {
+  const c = document.getElementById("stars");
+  for (let i = 0; i < 90; i++) {
+    const s = document.createElement("div");
+    s.className = "star";
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;
+      animation-duration:${2+Math.random()*5}s;
+      animation-delay:${Math.random()*5}s;
+      opacity:${Math.random()*0.4}`;
+    c.appendChild(s);
+  }
+})();
+
+/* ================================================================
+   AUDIO (Web Audio API)
+================================================================ */
+let _ac = null;
+function ac() {
+  if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)();
+  return _ac;
+}
+
+function beep(freq=440, dur=0.12, type="square", vol=0.08) {
+  try {
+    const ctx = ac();
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    osc.connect(g); g.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  } catch(e) {}
+}
+
+const SFX = {
+  click:   () => beep(750, 0.04, "square",   0.05),
+  correct: () => { beep(523,0.1,"sine",0.1); setTimeout(()=>beep(659,0.1,"sine",0.1),100); setTimeout(()=>beep(784,0.2,"sine",0.1),200); },
+  wrong:   () => { beep(200,0.15,"sawtooth",0.1); setTimeout(()=>beep(160,0.2,"sawtooth",0.08),120); },
+  unlock:  () => [784,784,784,659,784].forEach((n,i)=>setTimeout(()=>beep(n,0.18,"sine",0.12),i*140)),
+  victory: () => [523,659,784,1047].forEach((n,i)=>setTimeout(()=>beep(n,0.3,"sine",0.15),i*180)),
+  tap:     () => beep(600,0.04,"sine",0.06),
+};
+
+/* ================================================================
+   CONFETTI
+================================================================ */
+function confetti(count=60) {
+  const wrap = document.getElementById("confetti");
+  const colors = ["#00ff88","#00aaff","#ff3355","#ffcc00","#ff88cc","#aa44ff"];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const p = document.createElement("div");
+      p.className = "conf-piece";
+      const sz = 6 + Math.random() * 10;
+      p.style.cssText = `
+        left:${Math.random()*100}%;
+        width:${sz}px; height:${sz}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>0.5?"50%":"2px"};
+        animation-duration:${2+Math.random()*3}s;
+        animation-delay:${Math.random()*0.3}s;
+      `;
+      wrap.appendChild(p);
+      setTimeout(() => p.remove(), 6000);
+    }, i * 18);
+  }
+}
+
+/* ================================================================
+   OVERLAYS
+================================================================ */
+function closeOverlays() {
+  document.querySelectorAll(".overlay").forEach(o => o.classList.remove("show"));
+}
+
+function showMissionComplete(missionId) {
+  const code = CONFIG.missionCodes[missionId - 1];
+  const msgs = [
+    "Niesamowita wiedza! Jesteś prawdziwym ekspertem!",
+    "Twój mózg to superkomputer — brawo!",
+    "Refleksy agenta — sprawdzone! Cel zneutralizowany!",
+    "Pamięć operacyjna — bez zarzutu. Świetna robota!",
+    "Misja terenowa zaliczona! Prawdziwy agent działa wszędzie!",
+  ];
+
+  document.getElementById("ov-code").textContent = code;
+  document.getElementById("ov-msg").textContent = msgs[missionId - 1];
+
+  const ov = document.getElementById("ov-complete");
+  ov.classList.add("show");
+  SFX.unlock();
+  confetti(45);
+
+  document.getElementById("ov-btn").onclick = () => {
+    closeOverlays();
+    goToMissions();
+    if (G.completed.size >= 5) setTimeout(showVault, 600);
+  };
+}
+
+function showGameover(msg, retryFn) {
+  document.getElementById("ov-fail-msg").textContent = msg;
+  document.getElementById("ov-gameover").classList.add("show");
+  SFX.wrong();
+
+  document.getElementById("ov-retry-btn").onclick = () => {
+    closeOverlays();
+    retryFn();
+  };
+}
+
+/* ================================================================
+   MISSION COMPLETE (logic)
+================================================================ */
+function completeMission(id) {
+  G.completed.add(id);
+  saveState();
+  showMissionComplete(id);
+}
+
+/* ================================================================
+   BOOT SEQUENCE
+================================================================ */
+const BOOT_LINES = [
+  { t: "INITIALIZING BIRTHDAY PROTOCOL v9.0...", c: "c-green",  d: 80  },
+  { t: "SCANNING AGENT DATABASE...",              c: "c-dim",   d: 380 },
+  { t: "AGENT FOUND: KUBA // ID: KUB-009",        c: "c-blue",  d: 720 },
+  { t: "AGE VERIFICATION: 9 YEARS ✓",             c: "c-green", d: 1000},
+  { t: "",                                         c: "c-dim",   d: 1200},
+  { t: "LOADING MISSION PACKAGE...",              c: "c-dim",   d: 1300},
+  { t: "[1] QUIZ MISSION.............. OK",       c: "c-green", d: 1550},
+  { t: "[2] MATH MISSION.............. OK",       c: "c-green", d: 1750},
+  { t: "[3] REFLEX MISSION............ OK",       c: "c-green", d: 1950},
+  { t: "[4] MEMORY MISSION............ OK",       c: "c-green", d: 2150},
+  { t: "[5] FIELD MISSION............. OK",       c: "c-green", d: 2350},
+  { t: "",                                         c: "c-dim",   d: 2550},
+  { t: "ENCRYPTING CHANNEL...",                   c: "c-dim",   d: 2600},
+  { t: "SECURE CHANNEL ESTABLISHED ✓",            c: "c-green", d: 2900},
+  { t: "",                                         c: "c-dim",   d: 3050},
+  { t: "██████████████████████ 100%",              c: "c-green", d: 3150},
+  { t: "",                                         c: "c-dim",   d: 3400},
+  { t: "⚡  BIRTHDAY PROTOCOL ONLINE  ⚡",         c: "c-green", d: 3500},
+  { t: "",                                         c: "c-dim",   d: 3750},
+  { t: `WITAJ, AGENCIE ${CONFIG.agentName}.`,     c: "c-blue",  d: 3900},
+  { t: "TWOJA MISJA WŁAŚNIE SIĘ ROZPOCZYNA...",  c: "c-yellow",d: 4300},
+];
+
+function runBoot() {
+  const log = document.getElementById("boot-log");
+  BOOT_LINES.forEach(line => {
+    setTimeout(() => {
+      const el = document.createElement("div");
+      el.className = "boot-line " + line.c;
+      el.textContent = line.t || " ";
+      log.appendChild(el);
+      requestAnimationFrame(() => el.classList.add("show"));
+      if (line.t) beep(350 + Math.random()*80, 0.015, "square", 0.015);
+      log.scrollTop = log.scrollHeight;
+    }, line.d);
+  });
+
+  setTimeout(() => {
+    showScreen("screen-briefing");
+    typeText(document.getElementById("briefing-text"),
+`Uwaga, Agent ${CONFIG.agentName}!
+
+Właśnie skończyłeś ${CONFIG.agentAge} lat i jako nasz
+najzdolniejszy agent, otrzymujesz dostęp
+do Protokołu Urodzinowego.
+
+Twoje zadanie: przejść przez 5 najtrudniejszych
+misji w historii tajnej agencji.
+
+Każda misja odblokuje fragment TAJNEGO KODU.
+Gdy zbierzesz wszystkie fragmenty,
+możesz otworzyć SKARBIEC URODZINOWY
+i odebrać swoje nagrody! 🎁
+
+Czy jesteś gotowy, Agencie?`, 18);
+  }, 5000);
+}
+
+/* ================================================================
+   TYPEWRITER
+================================================================ */
+function typeText(el, text, speed=18) {
+  el.textContent = "";
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i < text.length) {
+      el.textContent += text[i];
+      if (text[i].trim() && text[i] !== " ") beep(580+Math.random()*60,0.008,"square",0.015);
+      i++;
+    } else {
+      clearInterval(iv);
+    }
+  }, speed);
+}
+
+/* ================================================================
+   BRIEFING → MISSIONS
+================================================================ */
+document.getElementById("btn-to-missions").addEventListener("click", () => {
+  SFX.click();
+  goToMissions();
+});
+
+/* ================================================================
+   MISSION GRID
+================================================================ */
+function buildMissionGrid() {
+  const done = G.completed.size;
+
+  // Progress
+  document.getElementById("progress-text").textContent = `${done} / 5`;
+  document.getElementById("progress-fill").style.width = `${done/5*100}%`;
+
+  // Codes
+  const codes = CONFIG.missionCodes.map((c, i) => G.completed.has(i+1) ? c : "__");
+  document.getElementById("codes-display").textContent = codes.join("  ");
+
+  // Vault button
+  document.getElementById("btn-go-vault").style.display = done >= 5 ? "flex" : "none";
+
+  const grid = document.getElementById("mission-grid");
+  grid.innerHTML = "";
+
+  MISSIONS_DATA.forEach((m, idx) => {
+    const isDone = G.completed.has(m.id);
+    const card   = document.createElement("div");
+    card.className = "mission-card" + (isDone ? " completed" : "");
+
+    card.innerHTML = `
+      <div class="m-num">MISJA 0${m.id}</div>
+      <div class="m-icon">${m.icon}</div>
+      <div class="m-name">${m.name}</div>
+      <div class="m-desc">${m.desc}</div>
+      <div class="m-status ${isDone ? "done" : "available"}">
+        ${isDone ? "✓ ZALICZONE // KOD: " + CONFIG.missionCodes[idx] : "● DOSTĘPNA"}
+      </div>
+    `;
+
+    card.addEventListener("click", () => { SFX.click(); launchMission(m.id); });
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById("btn-go-vault").addEventListener("click", () => { SFX.click(); showVault(); });
+
+document.getElementById("btn-reset").addEventListener("click", () => {
+  if (confirm("Czy na pewno chcesz zresetować cały postęp gry?")) {
+    G.completed.clear();
+    saveState();
+    buildMissionGrid();
+    SFX.click();
+  }
+});
+
+/* ================================================================
+   LAUNCH MISSION
+================================================================ */
+function launchMission(id) {
+  switch(id) {
+    case 1: initQuiz();   showScreen("screen-mission1"); break;
+    case 2: initMath();   showScreen("screen-mission2"); break;
+    case 3: initReflex(); showScreen("screen-mission3"); break;
+    case 4: initMemory(); showScreen("screen-mission4"); break;
+    case 5: initField();  showScreen("screen-mission5"); break;
+  }
+}
+
+/* ================================================================
+   MISSION 1 — QUIZ
+================================================================ */
+let QS = {};
+
+function initQuiz() {
+  const shuffled = [...QUIZ_QUESTIONS].sort(() => Math.random()-0.5).slice(0,6);
+  QS = { qs: shuffled, cur: 0, score: 0, locked: false };
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q   = QS.qs[QS.cur];
+  const num = QS.cur + 1;
+  const tot = QS.qs.length;
+
+  document.getElementById("q-num").textContent   = `${q.tag || ""} — PYTANIE ${num}/${tot}`;
+  document.getElementById("q-score").textContent  = `✓ ${QS.score}`;
+  document.getElementById("q-prog").style.width   = `${(num/tot)*100}%`;
+  document.getElementById("q-feedback").textContent = "";
+
+  const qbox = document.getElementById("q-text");
+  qbox.textContent = q.q;
+
+  const cont = document.getElementById("q-answers");
+  cont.innerHTML = "";
+
+  const letters = ["A","B","C","D"];
+  // Shuffle with original indices
+  const idxs = [0,1,2,3].sort(() => Math.random()-0.5);
+
+  idxs.forEach(i => {
+    const btn = document.createElement("button");
+    btn.className = "ans-btn";
+    btn.textContent = `${letters[i]}) ${q.ans[i]}`;
+    btn.addEventListener("click", () => handleAnswer(i, btn, cont, q));
+    cont.appendChild(btn);
+  });
+
+  QS.locked = false;
+}
+
+function handleAnswer(idx, btn, cont, q) {
+  if (QS.locked) return;
+  QS.locked = true;
+  SFX.click();
+
+  const allBtns = cont.querySelectorAll(".ans-btn");
+  allBtns.forEach(b => b.style.pointerEvents = "none");
+
+  const fb = document.getElementById("q-feedback");
+
+  if (idx === q.ok) {
+    btn.classList.add("correct");
+    fb.innerHTML = '<span style="color:var(--green)">✓ Poprawnie! Świetna robota!</span>';
+    QS.score++;
+    SFX.correct();
+  } else {
+    btn.classList.add("wrong");
+    allBtns.forEach(b => {
+      if (b.textContent.includes(q.ans[q.ok])) b.classList.add("correct");
+    });
+    fb.innerHTML = `<span style="color:var(--red)">✗ Nie tym razem. Poprawna: ${q.ans[q.ok]}</span>`;
+    SFX.wrong();
+  }
+
+  setTimeout(() => {
+    QS.cur++;
+    if (QS.cur < QS.qs.length) {
+      renderQuestion();
+    } else {
+      const pass = Math.ceil(QS.qs.length * 0.6); // 60% = pass
+      if (QS.score >= pass) {
+        completeMission(1);
+      } else {
+        showGameover(
+          `Zdobyłeś ${QS.score}/${QS.qs.length} punktów. Potrzebujesz ${pass} żeby zaliczyć. Spróbuj ponownie!`,
+          initQuiz
+        );
+      }
+    }
+  }, 1600);
+}
+
+/* ================================================================
+   MISSION 2 — MATH (z numpadem dotykowym)
+================================================================ */
+let MS = {};
+let mathDisplayVal = "";
+
+function initMath() {
+  MS = { qs: [...MATH_QUESTIONS].sort(()=>Math.random()-0.5), cur:0, ok:0 };
+  mathDisplayVal = "";
+  buildNumpad();
+  renderMath();
+}
+
+function buildNumpad() {
+  const pad = document.getElementById("math-numpad");
+  pad.innerHTML = "";
+  const keys = ["7","8","9","4","5","6","1","2","3","←","0","✓"];
+
+  keys.forEach(k => {
+    const btn = document.createElement("button");
+    btn.className = "numpad-btn";
+    btn.textContent = k;
+    btn.addEventListener("click", () => {
+      SFX.tap();
+      if (k === "←") {
+        mathDisplayVal = mathDisplayVal.slice(0,-1);
+      } else if (k === "✓") {
+        checkMath();
+        return;
+      } else {
+        if (mathDisplayVal.length < 6) mathDisplayVal += k;
+      }
+      document.getElementById("math-display").textContent = mathDisplayVal || "_";
+      document.getElementById("math-feedback").textContent = "";
+    });
+    pad.appendChild(btn);
+  });
+}
+
+function renderMath() {
+  const q = MS.qs[MS.cur];
+  document.getElementById("math-num").textContent   = `ZADANIE ${MS.cur+1} / ${MS.qs.length}`;
+  document.getElementById("math-score").textContent  = `✓ ${MS.ok} / ${MS.qs.length}`;
+  document.getElementById("math-q").textContent      = q.q;
+  document.getElementById("math-feedback").textContent = "";
+  mathDisplayVal = "";
+  document.getElementById("math-display").textContent = "_";
+}
+
+function checkMath() {
+  SFX.click();
+  const q   = MS.qs[MS.cur];
+  const val = parseInt(mathDisplayVal, 10);
+  const fb  = document.getElementById("math-feedback");
+
+  if (isNaN(val)) {
+    fb.innerHTML = '<span style="color:var(--yellow)">Wpisz liczbę!</span>';
+    return;
+  }
+
+  if (val === q.ans) {
+    fb.innerHTML = '<span style="color:var(--green)">✓ Poprawnie! Geniusz!</span>';
+    MS.ok++;
+    SFX.correct();
+    setTimeout(() => {
+      MS.cur++;
+      if (MS.cur < MS.qs.length) renderMath();
+      else completeMission(2);
+    }, 1100);
+  } else {
+    fb.innerHTML = `<span style="color:var(--red)">✗ Spróbuj jeszcze! Podpowiedź: ${q.hint}</span>`;
+    SFX.wrong();
+    mathDisplayVal = "";
+    document.getElementById("math-display").textContent = "_";
+  }
+}
+
+/* ================================================================
+   MISSION 3 — REFLEX
+================================================================ */
+let RS = {};
+
+function initReflex() {
+  stopReflex();
+  RS = { hits:0, misses:0, time:30, interval:null, targetTimer:null, active:false };
+  document.getElementById("r-hits").textContent = "0";
+  document.getElementById("r-miss").textContent = "0";
+  document.getElementById("r-timer").textContent = "30";
+  document.getElementById("r-timer").classList.remove("danger");
+
+  const arena = document.getElementById("reflex-arena");
+  arena.querySelectorAll(".target-dot").forEach(t => t.remove());
+  document.getElementById("reflex-start").style.display = "flex";
+}
+
+function startReflex() {
+  SFX.click();
+  document.getElementById("reflex-start").style.display = "none";
+  RS.active = true;
+
+  spawnTarget();
+
+  RS.interval = setInterval(() => {
+    RS.time--;
+    document.getElementById("r-timer").textContent = RS.time;
+    if (RS.time <= 10) document.getElementById("r-timer").classList.add("danger");
+    if (RS.time <= 0) endReflex();
+  }, 1000);
+}
+
+function spawnTarget() {
+  if (!RS.active) return;
+  const arena = document.getElementById("reflex-arena");
+  arena.querySelectorAll(".target-dot").forEach(t => t.remove());
+
+  const dot = document.createElement("div");
+  dot.className = "target-dot";
+
+  const size = 56;
+  const x = 8 + Math.random() * 84;
+  const y = 8 + Math.random() * 84;
+  dot.style.cssText = `left:${x}%; top:${y}%; width:${size}px; height:${size}px;`;
+
+  dot.innerHTML = `<svg class="target-svg" viewBox="0 0 56 56" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="28" cy="28" r="26" stroke="#ff3355" stroke-width="2" fill="rgba(255,51,85,0.08)"/>
+    <circle cx="28" cy="28" r="18" stroke="#ff3355" stroke-width="1.5" fill="rgba(255,51,85,0.08)"/>
+    <circle cx="28" cy="28" r="8"  stroke="#ff3355" stroke-width="1.5" fill="rgba(255,51,85,0.18)"/>
+    <circle cx="28" cy="28" r="3"  fill="#ff3355"/>
+    <line x1="28" y1="0"  x2="28" y2="18" stroke="#ff3355" stroke-width="1.5"/>
+    <line x1="28" y1="38" x2="28" y2="56" stroke="#ff3355" stroke-width="1.5"/>
+    <line x1="0"  y1="28" x2="18" y2="28" stroke="#ff3355" stroke-width="1.5"/>
+    <line x1="38" y1="28" x2="56" y2="28" stroke="#ff3355" stroke-width="1.5"/>
+  </svg>`;
+
+  dot.addEventListener("click", e => {
+    e.stopPropagation();
+    if (!RS.active) return;
+    clearTimeout(RS.targetTimer);
+
+    // Hit flash
+    const flash = document.createElement("div");
+    flash.className = "hit-flash";
+    flash.style.cssText = `left:${x}%;top:${y}%;width:60px;height:60px;background:rgba(0,255,136,0.4);`;
+    arena.appendChild(flash);
+    setTimeout(() => flash.remove(), 500);
+
+    dot.remove();
+    RS.hits++;
+    document.getElementById("r-hits").textContent = RS.hits;
+    beep(900+RS.hits*20, 0.04, "sine", 0.08);
+
+    if (RS.hits >= 10) { endReflex(true); return; }
+    setTimeout(() => spawnTarget(), 200);
+  });
+
+  arena.appendChild(dot);
+
+  RS.targetTimer = setTimeout(() => {
+    if (!RS.active) return;
+    if (arena.contains(dot)) {
+      dot.remove();
+      RS.misses++;
+      document.getElementById("r-miss").textContent = RS.misses;
+      spawnTarget();
+    }
+  }, 2200);
+}
+
+function stopReflex() {
+  if (RS.interval)     clearInterval(RS.interval);
+  if (RS.targetTimer)  clearTimeout(RS.targetTimer);
+  if (RS) RS.active = false;
+  const arena = document.getElementById("reflex-arena");
+  if (arena) arena.querySelectorAll(".target-dot").forEach(t => t.remove());
+}
+
+function endReflex(success=false) {
+  stopReflex();
+  if (success || RS.hits >= 10) {
+    completeMission(3);
+  } else {
+    showGameover(
+      `Czas minął! Trafiłeś ${RS.hits}/10 celów. Działaj szybciej i spróbuj ponownie!`,
+      () => { initReflex(); showScreen("screen-mission3"); }
+    );
+  }
+}
+
+/* ================================================================
+   MISSION 4 — MEMORY
+================================================================ */
+let MEM = {};
+
+function initMemory() {
+  MEM = { flipped:[], matched:0, tries:0, locked:false };
+  document.getElementById("m-pairs").textContent = "0/6";
+  document.getElementById("m-tries").textContent = "0";
+
+  const grid = document.getElementById("memory-grid");
+  grid.innerHTML = "";
+
+  const items = [...MEMORY_EMOJIS, ...MEMORY_EMOJIS].sort(() => Math.random()-0.5);
+
+  items.forEach((emoji, i) => {
+    const card = document.createElement("div");
+    card.className = "mem-card";
+    card.dataset.emoji = emoji;
+    card.innerHTML = `<span class="front">${emoji}</span><span class="back">?</span>`;
+    card.addEventListener("click", () => flipCard(card));
+    grid.appendChild(card);
+  });
+}
+
+function flipCard(card) {
+  if (MEM.locked) return;
+  if (card.classList.contains("flipped") || card.classList.contains("matched")) return;
+  SFX.tap();
+  card.classList.add("flipped");
+  MEM.flipped.push(card);
+
+  if (MEM.flipped.length === 2) {
+    MEM.locked = true;
+    MEM.tries++;
+    document.getElementById("m-tries").textContent = MEM.tries;
+
+    const [a, b] = MEM.flipped;
+    if (a.dataset.emoji === b.dataset.emoji) {
+      setTimeout(() => {
+        a.classList.replace("flipped","matched");
+        b.classList.replace("flipped","matched");
+        MEM.flipped = [];
+        MEM.matched++;
+        MEM.locked = false;
+        document.getElementById("m-pairs").textContent = `${MEM.matched}/6`;
+        SFX.correct();
+        if (MEM.matched === 6) setTimeout(() => completeMission(4), 400);
+      }, 400);
+    } else {
+      setTimeout(() => {
+        a.classList.remove("flipped");
+        b.classList.remove("flipped");
+        MEM.flipped = [];
+        MEM.locked = false;
+        SFX.wrong();
+      }, 900);
+    }
+  }
+}
+
+/* ================================================================
+   MISSION 5 — FIELD
+================================================================ */
+function initField() {
+  document.getElementById("field-clue").textContent = CONFIG.fieldClue;
+  document.getElementById("field-input").value = "";
+  document.getElementById("field-feedback").textContent = "";
+}
+
+function checkField() {
+  SFX.click();
+  const val = document.getElementById("field-input").value.trim().toUpperCase();
+  const exp = CONFIG.fieldCode.toUpperCase();
+  const fb  = document.getElementById("field-feedback");
+
+  if (!val) {
+    fb.innerHTML = '<span style="color:var(--yellow)">Wpisz kod z karteczki!</span>';
+    return;
+  }
+
+  if (val === exp) {
+    fb.innerHTML = '<span style="color:var(--green)">✓ KOD POPRAWNY! MISJA ZALICZONA!</span>';
+    SFX.correct();
+    setTimeout(() => completeMission(5), 900);
+  } else {
+    fb.innerHTML = '<span style="color:var(--red)">✗ Błędny kod. Szukaj dalej!</span>';
+    SFX.wrong();
+    document.getElementById("field-input").value = "";
+  }
+}
+
+// Enter key for field input
+document.getElementById("field-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") checkField();
+});
+
+/* ================================================================
+   VAULT
+================================================================ */
+function showVault() {
+  const cont = document.getElementById("vault-codes");
+  cont.innerHTML = "";
+
+  CONFIG.missionCodes.forEach((code, i) => {
+    const frag = document.createElement("div");
+    frag.className = "code-fragment";
+    frag.textContent = code;
+    frag.style.opacity = "0";
+    cont.appendChild(frag);
+
+    setTimeout(() => {
+      frag.style.transition = "opacity 0.4s, transform 0.3s";
+      frag.style.opacity = "1";
+      frag.style.transform = "scale(1.15)";
+      beep(400+i*120, 0.12, "sine", 0.1);
+      setTimeout(() => { frag.style.transform = ""; }, 280);
+    }, i * 350);
+  });
+
+  const master = CONFIG.missionCodes.join("");
+  document.getElementById("master-code-display").textContent = master;
+
+  showScreen("screen-vault");
+  setTimeout(() => confetti(70), 600);
+  setTimeout(() => SFX.victory(), 800);
+}
+
+/* ================================================================
+   SUCCESS
+================================================================ */
+function showSuccess() {
+  document.getElementById("success-code").textContent = CONFIG.missionCodes.join("");
+  showScreen("screen-success");
+  confetti(100);
+  SFX.victory();
+}
+
+/* ================================================================
+   PARENT MODE — naciśnij logo 5× żeby zobaczyć wszystkie kody
+================================================================ */
+let secretTaps = 0;
+document.getElementById("agent-title").addEventListener("click", () => {
+  secretTaps++;
+  if (secretTaps >= 5) {
+    secretTaps = 0;
+    alert(
+      "🔐 TRYB RODZICIELSKI\n\n" +
+      CONFIG.missionCodes.map((c,i) => `Misja ${i+1}: ${c}`).join("\n") +
+      `\n\nMaster kod: ${CONFIG.missionCodes.join("")}` +
+      `\nKod terenowy (na karteczce): ${CONFIG.fieldCode}`
+    );
+  }
+});
+
+/* ================================================================
+   START!
+================================================================ */
+runBoot();
+</script>
+</body>
+</html>
