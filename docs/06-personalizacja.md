@@ -10,11 +10,12 @@ Otwórz `index.html` w edytorze tekstu (Notatnik, TextEdit, VS Code) i znajdź s
 
 ```js
 const CONFIG = {
-  agentName:    "KUBA",        // ← zmień na imię dziecka
-  agentAge:     9,             // ← zmień na wiek
-  missionCodes: ["KU","BA","07","XY","ZZ"],  // ← zmień kody
-  fieldCode:    "AGENT",       // ← zmień kod terenowy
-  fieldClue:    `...`,         // ← zmień zagadkę terenową
+  agentName:    "KUBA",                      // ← zmień na imię dziecka
+  agentAge:     9,                           // ← zmień na wiek
+  accessCode:   "START123",                  // ← kod wejściowy — przekaż dziecku przed grą
+  missionCodes: ["KU","BA","07","XY","ZZ"],  // ← zmień kody; LICZBA ELEMENTÓW = liczba misji (2–10)
+  fieldCode:    "AGENT",                     // ← zmień kod terenowy
+  fieldClue:    `...`,                       // ← zmień zagadkę terenową
 }
 ```
 
@@ -23,6 +24,18 @@ To wystarczy żeby gra działała dla innego dziecka.
 ---
 
 ## Parametry konfiguracyjne — opis
+
+### `accessCode`
+
+Kod wejściowy wyświetlany dziecku przed grą (np. napisany na zaproszeniu lub podany przez rodzica). Dziecko wpisuje go na login screenie — bez poprawnego kodu gra nie startuje.
+
+```js
+accessCode: "AGENT007"
+accessCode: "KUBA2025"
+accessCode: "SKARB"
+```
+
+**Wskazówka:** wybierz kod nawiązujący do fabuły lub imienia dziecka. Nie musi być tajny — to bariera UX, nie zabezpieczenie.
 
 ### `agentName`
 
@@ -45,7 +58,7 @@ agentAge: 12
 
 ### `missionCodes`
 
-Tablica 5 (lub więcej) fragmentów kodu. Każdy fragment pojawia się po zaliczeniu odpowiedniej misji. Złożone razem tworzą master kod.
+Tablica fragmentów kodu — **liczba elementów wyznacza liczbę misji** (min. 2, maks. 10). Każdy fragment pojawia się po zaliczeniu odpowiedniej misji. Złożone razem tworzą master kod.
 
 **Zasady:**
 - Każdy fragment: 2–4 znaki (litery i/lub cyfry)
@@ -53,17 +66,21 @@ Tablica 5 (lub więcej) fragmentów kodu. Każdy fragment pojawia się po zalicz
 - Master kod = fragmenty sklejone bez spacji
 
 ```js
-// Przykłady:
-missionCodes: ["AN", "IA", "20", "25", "XO"]   // master: ANIA2025XO
-missionCodes: ["07", "07", "20", "25", "!!"]   // master: 07072025!!
-missionCodes: ["ZU", "ZI", "A9", "LA", "T!"]  // master: ZUZIA9LAT!
+// 3 misje — krótkie przyjęcie:
+missionCodes: ["KU", "BA", "07"]             // master: KUBA07
+
+// 5 misji — standardowe urodziny:
+missionCodes: ["AN", "IA", "20", "25", "XO"] // master: ANIA2025XO
+
+// 7 misji — dłuższa impreza:
+missionCodes: ["ZU", "ZI", "A9", "LA", "T!", "GO", "!"]  // master: ZUZIA9LAT!GO!
 ```
 
 **Wskazówka:** możesz zbudować master kod który coś znaczy, np. datę urodzin, inicjały + wiek, imię:
 
 ```js
-// "ZUZIA9" → ZU + ZI + A9
-missionCodes: ["ZU", "ZI", "A9", "KO", "D!"]
+// "ZUZIA9LAT" → ZU + ZI + A9 + LA + T (5 misji)
+missionCodes: ["ZU", "ZI", "A9", "LA", "T"]
 ```
 
 ### `fieldCode`
@@ -147,25 +164,29 @@ Pytania quizowe są w tablicy `QUIZ_QUESTIONS`. Możesz:
 
 ### 1 tydzień przed
 
+- [ ] Zdecyduj ile misji (2–10) — wpisz odpowiednią liczbę elementów do `missionCodes`
 - [ ] Zmień `agentName` i `agentAge` w CONFIG
-- [ ] Wymyśl 5 kodów misji i wpisz do `missionCodes`
-- [ ] Wymyśl `fieldCode` — jedno słowo które wpiszesz na karteczce
+- [ ] Wymyśl `accessCode` — kod wejściowy dla gracza (np. "KUBA2025")
+- [ ] Wymyśl kody misji i wpisz do `missionCodes` — razem tworzą master kod
+- [ ] Wymyśl `fieldCode` — jedno słowo które wpiszesz na karteczce (jeśli używasz misji terenowej)
 - [ ] Napisz `fieldClue` — zagadkę opisującą gdzie ukryta karteczka
 - [ ] Dostosuj pytania quizowe do zainteresowań dziecka
-- [ ] Przetestuj całą grę od początku do końca
+- [ ] Przetestuj całą grę od login screena do skarbca
 
 ### Dzień przed
 
 - [ ] Wydrukuj lub napisz odręcznie karteczkę z `fieldCode`
 - [ ] Ukryj karteczkę w miejscu opisanym w `fieldClue`
+- [ ] Zapisz `accessCode` — przekażesz go dziecku przed grą
 - [ ] Wgraj zaktualizowaną grę na GitHub Pages (lub przygotuj tablet offline)
-- [ ] Zapamiętaj master kod (lub zapisz go dla siebie: CONFIG.missionCodes.join(""))
+- [ ] Zapamiętaj master kod (lub zapisz go dla siebie: `CONFIG.missionCodes.join("")`)
 - [ ] Naładuj tablet
 
 ### W dniu urodzin
 
-- [ ] Uruchom grę, pokaż dziecku ekran startowy
-- [ ] Bądź blisko podczas Misji 5 (terenowej) — dziecko idzie szukać karteczki
+- [ ] Przekaż dziecku `accessCode` (ustnie lub na karteczce)
+- [ ] Uruchom grę, pokaż dziecku ekran logowania
+- [ ] Bądź blisko podczas misji terenowej — dziecko idzie szukać karteczki
 - [ ] Gdy pojawi się master kod — odbierz go i przygotuj prezenty
 
 ---

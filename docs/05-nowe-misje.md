@@ -42,7 +42,7 @@ Misja **nie może** bezpośrednio modyfikować `G` (globalny stan) — robi to `
 ```js
 const CONFIG = {
   // ...
-  missionCodes: ["KU", "BA", "07", "XY", "ZZ", "AG"],  // ← dodaj 6. element
+  missionCodes: ["KU", "BA", "07", "XY", "ZZ", "AG"],  // ← dodaj nowy element (długość tablicy = liczba misji)
 }
 ```
 
@@ -143,26 +143,19 @@ function launchMission(id) {
 }
 ```
 
-### Krok 6 — Zaktualizuj progress bar
+### Krok 6 — Sprawdź czy progress bar jest dynamiczny
 
-Jeśli zmienisz liczbę misji z 5 na 6, zaktualizuj jeden fragment w `buildMissionGrid()`:
+Jeśli kod używa `CONFIG.missionCodes.length` zamiast hardkodowanej liczby, **nic nie trzeba zmieniać** — pasek postępu i warunek skarbca aktualizują się automatycznie.
 
 ```js
-// Zmień:
-document.getElementById("btn-go-vault").style.display = done >= 5 ? "flex" : "none"
-// Na:
-document.getElementById("btn-go-vault").style.display = done >= 6 ? "flex" : "none"
+// Poprawna implementacja (dynamiczna — nie wymaga zmian przy dodawaniu misji):
+const N = CONFIG.missionCodes.length
+document.getElementById("btn-go-vault").style.display = done >= N ? "flex" : "none"
+document.getElementById("progress-text").textContent = `${done} / ${N}`
+document.getElementById("progress-fill").style.width = `${done / N * 100}%`
 ```
 
-I w progress text:
-```js
-// Zmień:
-document.getElementById("progress-text").textContent = `${done} / 5`
-document.getElementById("progress-fill").style.width = `${done/5*100}%`
-// Na:
-document.getElementById("progress-text").textContent = `${done} / 6`
-document.getElementById("progress-fill").style.width = `${done/6*100}%`
-```
+Jeśli natrafisz na hardkodowaną liczbę (np. `done >= 5`), zastąp ją wyrażeniem `CONFIG.missionCodes.length`.
 
 ---
 
@@ -196,13 +189,13 @@ Brak w MVP. Dobre do: ułożenia puzzle, posortowania krajów według populacji,
 
 ## Checklist przed wdrożeniem nowej misji
 
-- [ ] Dodałem kod fragmentu do `CONFIG.missionCodes`
+- [ ] Dodałem kod fragmentu do `CONFIG.missionCodes` (długość tablicy = nowa liczba misji)
 - [ ] Dodałem wpis do `MISSIONS_DATA`
 - [ ] Ekran HTML ma `id="screen-missionX"`
 - [ ] `initMisjaX()` resetuje **cały** stan misji (nie zakłada poprzedniego stanu)
 - [ ] Misja wywołuje `completeMission(X)` przy sukcesie
 - [ ] Misja wywołuje `showGameover()` przy porażce (jeśli dotyczy)
 - [ ] `launchMission()` ma nowy `case X:`
-- [ ] Zaktualizowałem liczby `/5` → `/6` w `buildMissionGrid()`
+- [ ] `buildMissionGrid()` używa `CONFIG.missionCodes.length` — bez hardkodowanych liczb
 - [ ] Przetestowałem misję: przejście, porażka+retry, powrót do bazy w trakcie
-- [ ] Przetestowałem cały flow: od boot do skarbca z nową misją
+- [ ] Przetestowałem cały flow: od login screena do skarbca z nową misją

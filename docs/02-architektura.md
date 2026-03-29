@@ -28,8 +28,10 @@ index.html
 Jedyny punkt konfiguracji gry. Zawiera wszystko co rodzic musi ustawić. Nie zawiera logiki — tylko dane.
 
 ```js
-const CONFIG = { agentName, agentAge, missionCodes, fieldCode, fieldClue }
+const CONFIG = { agentName, agentAge, accessCode, missionCodes, fieldCode, fieldClue }
 ```
+
+Kluczowa własność: **`missionCodes.length` = liczba misji**. Gra dynamicznie dostosowuje UI (liczba kart, pasek postępu, warunek skarbca) do długości tej tablicy. Dopuszczalny zakres: 2–10 misji.
 
 **Zasada:** żadna wartość zależna od konkretnego urodzinowca nie pojawia się poza CONFIG.
 
@@ -143,17 +145,21 @@ Tylko lista ID zaliczonych misji jest persystowana. Pozostały stan (bieżące p
 ## 5. Drzewo ekranów
 
 ```
-screen-boot
-    └── screen-briefing
-            └── screen-missions (hub)
-                    ├── screen-mission1 (quiz)
-                    ├── screen-mission2 (math)
-                    ├── screen-mission3 (reflex)
-                    ├── screen-mission4 (memory)
-                    ├── screen-mission5 (field)
-                    └── screen-vault
-                            └── screen-success
+screen-login
+    └── screen-boot
+            └── screen-briefing
+                    └── screen-missions (hub)
+                            ├── screen-mission1 (quiz)
+                            ├── screen-mission2 (math)
+                            ├── screen-mission3 (reflex)
+                            ├── screen-mission4 (memory)
+                            ├── screen-mission5 (field)
+                            ├── screen-mission6..10 (opcjonalne — zależnie od CONFIG)
+                            └── screen-vault
+                                    └── screen-success
 ```
+
+Ekrany misji od 1 do N są zawsze obecne w HTML, ale tylko te od 1 do `CONFIG.missionCodes.length` są rejestrowane w `MISSIONS_DATA` i widoczne w centrum dowodzenia.
 
 Overlaye (`ov-complete`, `ov-gameover`) są niezależne od drzewa ekranów — nakładają się na dowolny aktywny ekran.
 
@@ -161,17 +167,17 @@ Overlaye (`ov-complete`, `ov-gameover`) są niezależne od drzewa ekranów — n
 
 ## 6. Granica między frontendem a przyszłym backendem
 
-**Teraz:** CONFIG + localStorage → wszystko po stronie przeglądarki.
+**Teraz:** CONFIG + localStorage → wszystko po stronie przeglądarki. `accessCode` jest weryfikowany po stronie JS (widoczny w pliku — świadomy kompromis, patrz ADR-008).
 
 **Przyszłość:** CONFIG zostanie zastąpione przez API call, localStorage przez session token + backend DB. Granica jest celowo wyraźna: cały kod gry (misje, UI, audio) nie wie nic o tym skąd pochodzi konfiguracja.
 
 ```js
 // Teraz (hardcoded):
-const CONFIG = { agentName: "KUBA", ... }
+const CONFIG = { agentName: "KUBA", accessCode: "START123", missionCodes: [...], ... }
 
 // Przyszłość (API):
 const CONFIG = await fetch("/api/session/abc123").then(r => r.json())
-// Reszta kodu gry NIE zmienia się
+// Reszta kodu gry NIE zmienia się — w tym logika missionCodes.length
 ```
 
 Ta granica pozwala dodać backend bez refaktoryzacji logiki gry.

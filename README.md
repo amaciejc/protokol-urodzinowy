@@ -1,7 +1,7 @@
 # 🎂 Protokół Urodzinowy
 
 Interaktywna gra urodzinowa w klimacie agencji szpiegowskiej.
-Dziecko przechodzi przez misje, zbiera fragmenty tajnego kodu i odblokowuje prezenty.
+Dziecko przechodzi przez misje, i zbiera kody, które potem może wymienić na prezenty lub nagrody. Może też zbierać fragmenty jednego, tajnego kodu, który odblokowuje wszystkie prezenty.
 
 **Technologia:** czysty HTML + CSS + JS (zero frameworków, zero zależności)
 **Optymalizacja:** tablet (touch-friendly, duże przyciski)
@@ -52,6 +52,7 @@ protokol-urodzinowy/
 | [Deployment](docs/04-deployment.md) | Krok po kroku: GitHub Pages |
 | [Nowe misje](docs/05-nowe-misje.md) | Kontrakt misji, przykład, checklist |
 | [Personalizacja](docs/06-personalizacja.md) | Jak zmienić bohatera, misje, kody |
+| [OgólnyScenariusz misji] (docs/07-scenariusz.md) | Jak wygląda cały proces zabawy, od zaproszenia do gry, przez wszystkie fizyczne i cyfrowe elementy |
 
 ---
 

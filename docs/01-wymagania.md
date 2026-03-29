@@ -2,40 +2,51 @@
 
 ## 1. Cel produktu
 
-Gra urodzinowa uruchamiana na tablecie. Dziecko wciela się w agenta szpiegowskiego i przechodzi przez serię misji (quizy, mini-gry, zadania fizyczne). Każda zaliczona misja ujawnia fragment tajnego kodu. Złożenie wszystkich fragmentów otwiera "skarbiec" — rodzic na podstawie kodu wydaje prezent.
-
+Gra urodzinowa uruchamiana na dowolnym urządzeniu. Dziecko wciela się w rolę agenta szpiegowskiego i przechodzi przez serię misji (quizy, mini-gry, zadania fizyczne i inne zadania). Każda zaliczona misja ujawnia kod niezbędny do albo odblokowania kolejnego etapu albo uzyskania nagrody. Gra ma zapewnić dzieciom (i dorosłym) zabawę i urozmaicenie obchodzenia urodzin. 
 ---
 
 ## 2. Użytkownicy
 
-**Gracz (dziecko):** 7–12 lat, używa tabletu samodzielnie. Nie czyta instrukcji — gra musi prowadzić go za rękę.
+**Gracz (dziecko):** 7–12 lat, używa telefonu, tableta lub komputera samodzielnie. Nie czyta instrukcji — gra musi prowadzić go za rękę. Może skorzystać z pomocy rodzica w ostateczności. 
 
-**Rodzic / organizator:** konfiguruje grę przed urodzinami (imię, kody, karteczki), obserwuje przebieg, wydaje prezenty na podstawie kodu końcowego.
+**Rodzic / organizator:** konfiguruje grę przed urodzinami (imię, kody, karteczki), obserwuje przebieg, wydaje prezenty na podstawie kodów.
+
+**admin / właściciel platformy:** zarządza globalnymi ustawieniami platformy z grą, ustawieniem cen, dodawaniem nowych scenariuszy i zarządzania treściami na platformie. 
 
 ---
 
-## 3. Flow użytkownika
+## 3. Podstawowy Flow użytkownika
 
 ```
+[Login Screen]
+    ↓ strona na której gracz podaje swój kod, który pozwala mu wejść do gry. Po podaniu prawidłowego kodu uruchamia się boot screen
 [Boot screen]
     ↓ animacja ~5s
 [Briefing]
     ↓ kliknięcie "Zaakceptuj misję"
 [Centrum dowodzenia — wybór misji]
     ↓ dziecko wybiera misję (dowolna kolejność)
-[Misja 1–5]
-    ↓ zaliczenie → overlay z kodem fragmentu
+[Misja 1–N]  ← N = liczba misji ustalana przez organizatora (min. 2, maks. 10)
+    ↓ zaliczenie → pojawia się kod do odebrania nagrody
 [Centrum dowodzenia]
-    ↓ po zaliczeniu 5/5 → przycisk "Otwórz skarbiec"
-[Skarbiec — ujawnienie kodów]
-    ↓ kliknięcie "Odbierz nagrody"
+    ↓ po zaliczeniu N/N → wyświetla się finałowa animacja "Gratulacje i wszystkiego najlepszego"
+[Skarbiec - lista prezentów lub nagród]
+    ↓ lista nagród/prezentów, które
 [Ekran sukcesu — master kod]
 ```
+
+## 3a. Dodatkowe Flow Aplikacji
+[generowanie kodu początkowego]
+    - aplikacja pozwala adminowi na wygenerowanie kodu dostępu do gry, który przekazany jest w formie fizycznej (lub w przyszłości sms lub whatsapp)
+
 
 ---
 
 ## 4. Ekrany
 
+### 4.0 Login Screen
+- Ekran, gdzie użytkownik podaje kod dostępu do gry.
+- style podobny do reszty aplikacji
 ### 4.1 Boot screen
 - Animowany terminal — sekwencja linii tekstowych pojawiających się z opóźnieniem
 - Trwa ~5 sekund, po czym automatycznie przechodzi do briefingu
@@ -48,12 +59,12 @@ Gra urodzinowa uruchamiana na tablecie. Dziecko wciela się w agenta szpiegowski
 - Przycisk "Zaakceptuj misję" → centrum dowodzenia
 
 ### 4.3 Centrum dowodzenia (mission select)
-- Pasek postępu: X/5 misji ukończonych
-- Siatka 5 kart misji (2 kolumny)
+- Pasek postępu: X/N misji ukończonych (N = liczba misji w danej edycji)
+- Siatka N kart misji (2 kolumny, układ responsywny)
 - Każda karta: numer misji, ikona, nazwa, opis, status (dostępna / zaliczona + kod)
 - Wszystkie misje dostępne od razu (brak lockowania kolejności)
 - Pasek zebranych fragmentów kodu (ukryte jako `__` do momentu zaliczenia)
-- Przycisk "Otwórz skarbiec" — pojawia się dopiero gdy 5/5 zaliczone
+- Przycisk "Otwórz skarbiec" — pojawia się dopiero gdy N/N zaliczone
 - Przycisk "Resetuj postęp" — dla testów / ponownego uruchomienia
 - Postęp zapisywany w localStorage (przeżywa odświeżenie strony)
 
@@ -94,8 +105,9 @@ Gra urodzinowa uruchamiana na tablecie. Dziecko wciela się w agenta szpiegowski
 - Nieograniczone próby wpisania kodu
 
 ### 4.9 Skarbiec
-- Animowane ujawnianie 5 fragmentów kodu (jeden po drugim z dźwiękiem)
+- Animowane ujawnianie N fragmentów kodu (jeden po drugim z dźwiękiem), gdzie N = liczba misji
 - Złożony master kod wyświetlony wyraźnie (instrukcja: "pokaż rodzicom")
+- Lista nagród / prezentów przypisanych do ukończonych misji
 - Konfetti
 
 ### 4.10 Sukces
@@ -155,13 +167,16 @@ Wszystkie zmienne wymagane do personalizacji gry są w jednym obiekcie `CONFIG` 
 
 ```js
 CONFIG = {
-  agentName:    "KUBA",        // imię dziecka
-  agentAge:     9,             // wiek
-  missionCodes: ["KU","BA","07","XY","ZZ"],  // fragmenty kodu
-  fieldCode:    "AGENT",       // kod na karteczce terenowej
-  fieldClue:    "...",         // treść zagadki terenowej
+  agentName:    "KUBA",                       // imię dziecka
+  agentAge:     9,                            // wiek
+  accessCode:   "START123",                   // kod wejściowy dla gracza (login screen)
+  missionCodes: ["KU","BA","07","XY","ZZ"],   // fragmenty kodu — długość tablicy = liczba misji (2–10)
+  fieldCode:    "AGENT",                      // kod na karteczce terenowej (misja terenowa)
+  fieldClue:    "...",                        // treść zagadki terenowej
 }
 ```
+
+Liczba misji wynika wprost z `missionCodes.length`. Organizator dobiera od 2 do 10 misji wstawiając odpowiednią liczbę elementów do tablicy.
 
 ---
 

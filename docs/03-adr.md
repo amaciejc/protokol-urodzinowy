@@ -128,14 +128,16 @@ Wszystkie wartości specyficzne dla konkretnego urodzinowca są zgrupowane w jed
 const CONFIG = {
   agentName:    "KUBA",
   agentAge:     9,
-  missionCodes: ["KU","BA","07","XY","ZZ"],
+  accessCode:   "START123",
+  missionCodes: ["KU","BA","07","XY","ZZ"],   // długość = liczba misji
   fieldCode:    "AGENT",
   fieldClue:    "...",
 }
 ```
 
 **Konsekwencje:**
-- Nowa edycja = zmiana 5 wartości w jednym miejscu
+- Nowa edycja = zmiana kilku wartości w jednym miejscu
+- `missionCodes.length` jest jedynym źródłem prawdy o liczbie misji — logika gry nie ma hardkodowanej liczby
 - Prosty w przyszłości generator gry (frontend form → wypełnia CONFIG → pobierz plik)
 - Czytelna granica między "danymi" a "kodem"
 
@@ -188,6 +190,67 @@ Architektura docelowa będzie wyglądać następująco. Gra (frontend) pozostaje
 - Krok 2: jedna linijka — `CONFIG = await fetch(...)` zamiast `const CONFIG = {...}`
 - Krok 3: brak (płatność obsługiwana przed wejściem na stronę)
 - Krok 4: dodanie WebSocket lub polling do synchronizacji postępu
+
+---
+
+## ADR-008 — Login Screen z kodem po stronie JS
+
+**Status:** Aktywna (tymczasowa)
+
+**Kontekst:**
+Gra wymaga prostego mechanizmu wejścia — dziecko dostaje kod od organizatora i wpisuje go na starcie. Kod zapobiega przypadkowemu uruchomieniu gry "na sucho" przed urodzinami i dodaje element fabularny ("wpisz kod agenta").
+
+**Decyzja:**
+Kod dostępu (`CONFIG.accessCode`) jest weryfikowany po stronie JavaScript w przeglądarce. Kod jest widoczny w pliku HTML dla każdego kto go otworzy w edytorze.
+
+**Uzasadnienie:**
+- MVP nie wymaga bezpieczeństwa klasy enterprise — wystarczy bariera UX
+- Alternatywa (weryfikacja backendowa) wymaga serwera, co jest poza scope MVP
+- Osoba z dostępem do pliku HTML i tak może uruchomić grę bez kodu
+- Cel kodu to narracja i UX, nie ochrona zasobów
+
+**Konsekwencje:**
+- Kod można "złamać" przez inspekcję pliku — akceptowalne dla grupy 7–12 lat
+- Zero infrastruktury wymaganej
+- W przyszłości: weryfikacja przenosi się na backend (jeden fetch zamiast porównania JS)
+
+**Kiedy warto zrewidować:**
+Gdy `CONFIG` pochodzi z API (ADR-006, krok 2) — wtedy `accessCode` nigdy nie trafia do przeglądarki.
+
+---
+
+## ADR-009 — Dynamiczna liczba misji (2–10)
+
+**Status:** Aktywna
+
+**Kontekst:**
+Różne urodziny mają różny czas i różne zasoby. Krótkie przyjęcie = 3 misje. Długa impreza z wieloma dziećmi = 8–10 misji. Sztywna liczba misji wymuszałaby kompromisy przy każdej edycji.
+
+**Decyzja:**
+Liczba misji wynika wyłącznie z `CONFIG.missionCodes.length`. Cała logika gry (progress bar, warunek skarbca, siatka kart, animacja skarbca) operuje na tej wartości dynamicznie. Dopuszczalny zakres: 2–10.
+
+```js
+// Zamiast:
+if (done >= 5) showVaultButton()
+progressFill.style.width = (done / 5 * 100) + "%"
+
+// Powinno być:
+const N = CONFIG.missionCodes.length   // 2–10
+if (done >= N) showVaultButton()
+progressFill.style.width = (done / N * 100) + "%"
+```
+
+**Konsekwencje pozytywne:**
+- Organizator dobiera długość gry bez dotykania logiki
+- Nowa misja = dodanie kodu do tablicy + zaimplementowanie ekranu
+- Generator gry (przyszłość) może oferować slider "ile misji"
+
+**Konsekwencje negatywne:**
+- Maks. 10 ekranów misji musi istnieć w HTML (nieaktywne są po prostu ukryte)
+- Responsywność siatki kart musi działać dla 2 i dla 10 kart (CSS grid auto-fill)
+
+**Granica:**
+Minimum 2 (mniej nie tworzy "przygody"), maksimum 10 (więcej = plik HTML byłby za duży i gra za długa dla dzieci).
 
 ---
 
