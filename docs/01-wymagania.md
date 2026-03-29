@@ -73,7 +73,7 @@ Gra urodzinowa uruchamiana na dowolnym urządzeniu. Dziecko wciela się w rolę 
 - Kategorie: Minecraft, Roblox, Piłka nożna
 - 4 odpowiedzi na pytanie, układ 2×2
 - Odpowiedzi tasowane losowo przy każdym uruchomieniu
-- Po wyborze: natychmiastowy feedback (zielony = OK, czerwony = błąd + podświetlenie poprawnej)
+- Po wyborze: natychmiastowy feedback (zielony = OK, czerwony = błąd)
 - Próg zaliczenia: 60% (4/6 poprawnych)
 - Nieudana misja → overlay "Spróbuj ponownie" z opcją retry lub powrotu
 
