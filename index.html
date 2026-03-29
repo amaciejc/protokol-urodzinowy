@@ -82,6 +82,85 @@
     }
 
     /* ================================================================
+       LOGIN SCREEN
+    ================================================================ */
+    #screen-login {
+      justify-content: center;
+      align-items: center;
+      background: var(--bg);
+    }
+
+    #screen-login .login-box {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #screen-login .login-logo {
+      font-size: clamp(11px, 2.5vw, 14px);
+      color: var(--text-dim);
+      letter-spacing: 0.2em;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    #screen-login .login-logo .logo-main {
+      font-size: clamp(18px, 5vw, 26px);
+      color: var(--green);
+      display: block;
+      letter-spacing: 0.15em;
+      margin-bottom: 4px;
+    }
+
+    #login-input {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--green);
+      font-family: var(--font);
+      font-size: clamp(20px, 5vw, 28px);
+      text-align: center;
+      letter-spacing: 0.25em;
+      padding: 18px 16px;
+      text-transform: uppercase;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      caret-color: var(--green);
+      -webkit-appearance: none;
+    }
+
+    #login-input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 16px rgba(0,255,136,0.15);
+    }
+
+    #login-input.error {
+      border-color: var(--red);
+      box-shadow: 0 0 12px rgba(255,51,85,0.2);
+      animation: shake 0.35s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-5px); }
+      80%      { transform: translateX(5px); }
+    }
+
+    #login-error {
+      font-size: 12px;
+      color: var(--red);
+      letter-spacing: 0.12em;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    /* ================================================================
        BOOT SCREEN
     ================================================================ */
     #screen-boot {
@@ -810,9 +889,46 @@
 <div id="confetti"></div>
 
 <!-- ================================================================
+     SCREEN: LOGIN
+================================================================ -->
+<div class="screen active" id="screen-login">
+  <div class="login-box">
+
+    <div class="login-logo">
+      <span class="label">SYSTEM OPERACYJNY</span>
+      <span class="logo-main glitch">PROTOKÓŁ URODZINOWY</span>
+      <span class="label">WERYFIKACJA TOŻSAMOŚCI AGENTA</span>
+    </div>
+
+    <div class="panel panel-glow" style="width:100%; display:flex; flex-direction:column; gap:16px; padding:24px;">
+      <div class="label" style="text-align:center;">WPROWADŹ KOD DOSTĘPU</div>
+      <input
+        id="login-input"
+        type="text"
+        inputmode="text"
+        maxlength="16"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        placeholder="_ _ _ _ _ _"
+        onkeydown="if(event.key==='Enter') checkLogin()"
+        oninput="this.value=this.value.toUpperCase(); clearLoginError()"
+      />
+      <div id="login-error"></div>
+      <button class="btn" onclick="checkLogin()">WERYFIKUJ TOŻSAMOŚĆ</button>
+    </div>
+
+    <div class="label" style="text-align:center; font-size:9px; opacity:0.4;">
+      SYSTEM BEZPIECZEŃSTWA KRYPTOGRAFICZNEGO v2.0<br>NIEAUTORYZOWANY DOSTĘP ZABRONIONY
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
      SCREEN: BOOT
 ================================================================ -->
-<div class="screen active" id="screen-boot">
+<div class="screen" id="screen-boot">
   <div id="boot-log"></div>
 </div>
 
@@ -1168,8 +1284,12 @@ const CONFIG = {
   agentName: "KUBA",
   agentAge:  9,
 
+  // Kod dostępu — podaj dziecku przed grą (np. na zaproszeniu)
+  accessCode: "KUBA2025",
+
   // Kody dla każdej misji (maks. 4 znaki każdy)
   // Te kody składają się na MASTER KOD wyświetlany na końcu
+  // LICZBA ELEMENTÓW = liczba misji (min. 2, maks. 10)
   missionCodes: ["KU", "BA", "07", "XY", "ZZ"],
 
   // === MISJA TERENOWA ===
@@ -1345,6 +1465,32 @@ function goToMissions() {
   closeOverlays();
   buildMissionGrid();
   showScreen("screen-missions");
+}
+
+/* ================================================================
+   LOGIN
+================================================================ */
+function checkLogin() {
+  const input = document.getElementById("login-input");
+  const val   = input.value.trim().toUpperCase();
+
+  if (val === CONFIG.accessCode.toUpperCase()) {
+    // Poprawny kod — startuj grę
+    try { SFX.correct(); } catch(e) {}
+    showScreen("screen-boot");
+    setTimeout(runBoot, 120);
+  } else {
+    // Błędny kod — potrząśnij i pokaż komunikat
+    try { SFX.wrong(); } catch(e) {}
+    input.classList.add("error");
+    document.getElementById("login-error").textContent = "✗ NIEPRAWIDŁOWY KOD — SPRÓBUJ PONOWNIE";
+    input.value = "";
+    setTimeout(() => input.classList.remove("error"), 400);
+  }
+}
+
+function clearLoginError() {
+  document.getElementById("login-error").textContent = "";
 }
 
 /* ================================================================
@@ -2053,7 +2199,9 @@ document.getElementById("agent-title").addEventListener("click", () => {
 /* ================================================================
    START!
 ================================================================ */
-runBoot();
+// Gra startuje na ekranie logowania.
+// runBoot() jest wywoływane przez checkLogin() po weryfikacji kodu.
+document.getElementById("login-input").focus();
 </script>
 </body>
 </html>
