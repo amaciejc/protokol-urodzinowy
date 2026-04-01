@@ -1109,7 +1109,7 @@
         <div style="font-size:14px; color:var(--text-dim); line-height:1.6;">
           Cele będą się pojawiać na ekranie.<br>
           Klikaj je szybko! Trafij <strong style="color:var(--green);">10 celów</strong> zanim<br>
-          skończy się <strong style="color:var(--yellow);">30 sekund</strong>.
+          skończy się <strong style="color:var(--yellow);">20 sekund</strong>.
         </div>
         <button class="btn btn-sm" onclick="startReflex()">ROZPOCZNIJ TEST</button>
       </div>
@@ -1937,7 +1937,7 @@ let RS = {};
 
 function initReflex() {
   stopReflex();
-  RS = { hits:0, misses:0, time:30, interval:null, targetTimer:null, active:false };
+  RS = { hits:0, misses:0, time:20, interval:null, targetTimer:null, active:false };
   document.getElementById("r-hits").textContent = "0";
   document.getElementById("r-miss").textContent = "0";
   document.getElementById("r-timer").textContent = "30";

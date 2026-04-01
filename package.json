@@ -1,0 +1,27 @@
+{
+  "name": "urodziny",
+  "version": "1.0.0",
+  "description": "Interaktywna gra urodzinowa w klimacie agencji szpiegowskiej. Dziecko przechodzi przez misje, i zbiera kody, które potem może wymienić na prezenty lub nagrody. Może też zbierać fragmenty jednego, tajnego kodu, który odblokowuje wszystkie prezenty.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amaciejc/protokol-urodzinowy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/amaciejc/protokol-urodzinowy/issues"
+  },
+  "homepage": "https://github.com/amaciejc/protokol-urodzinowy#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.0"
+  }
+}

@@ -2,3 +2,6 @@
 .DS_Store?
 ._*
 Thumbs.db
+node_modules/
+test-results/
+playwright-report/
