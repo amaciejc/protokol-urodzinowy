@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Szyfr Morse'a — Agent Kuba</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #fff;
+      font-family: 'Courier New', monospace;
+      color: #111;
+    }
+
+    .page {
+      width: 148mm;
+      min-height: 210mm;
+      margin: 0 auto;
+      padding: 12mm 11mm;
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #111;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+
+    .agency {
+      font-size: 8px;
+      letter-spacing: 4px;
+      color: #555;
+    }
+
+    .title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      margin: 5px 0 3px;
+    }
+
+    .subtitle {
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: #555;
+    }
+
+    .stamp {
+      display: inline-block;
+      border: 3px solid #cc0000;
+      color: #cc0000;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      transform: rotate(-8deg);
+      position: absolute;
+      top: 12mm;
+      right: 11mm;
+      opacity: 0.8;
+    }
+
+    /* --- ZASZYFROWANA WIADOMOŚĆ --- */
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .label {
+      font-size: 7px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #777;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 2px;
+      margin-bottom: 8px;
+    }
+
+    .message-box {
+      border: 2px solid #111;
+      padding: 10px 14px;
+      text-align: center;
+    }
+
+    .morse-message {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      line-height: 1.6;
+    }
+
+    .morse-hint {
+      font-size: 8px;
+      color: #777;
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    /* --- ALFABET MORSE'A --- */
+    .alphabet-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px 8px;
+    }
+
+    .morse-entry {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .morse-letter {
+      font-weight: 700;
+      font-size: 13px;
+      min-width: 12px;
+    }
+
+    .morse-code {
+      color: #333;
+      font-size: 11px;
+    }
+
+    .footer {
+      margin-top: 14px;
+      border-top: 1px solid #111;
+      padding-top: 6px;
+      font-size: 8px;
+      color: #777;
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 1px;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="stamp">TAJNE</div>
+
+    <div class="header">
+      <div class="agency">Agencja Specjalnych Misji</div>
+      <div class="title">SZYFR MORSE'A</div>
+      <div class="subtitle">Dokument dla Agenta — odszyfruj wiadomość</div>
+    </div>
+
+    <div class="section">
+      <div class="label">Zaszyfrowana wiadomość</div>
+      <div class="message-box">
+        <div class="morse-message">.- / --. / . / -. / -</div>
+        <div class="morse-hint">[ / ] oznacza odstęp między literami</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">Klucz szyfrujący — Alfabet Morse'a</div>
+      <div class="alphabet-grid">
+        <div class="morse-entry"><span class="morse-letter">A</span><span class="morse-code">.-</span></div>
+        <div class="morse-entry"><span class="morse-letter">B</span><span class="morse-code">-...</span></div>
+        <div class="morse-entry"><span class="morse-letter">C</span><span class="morse-code">-.-.</span></div>
+        <div class="morse-entry"><span class="morse-letter">D</span><span class="morse-code">-..</span></div>
+        <div class="morse-entry"><span class="morse-letter">E</span><span class="morse-code">.</span></div>
+        <div class="morse-entry"><span class="morse-letter">F</span><span class="morse-code">..-.</span></div>
+        <div class="morse-entry"><span class="morse-letter">G</span><span class="morse-code">--.</span></div>
+        <div class="morse-entry"><span class="morse-letter">H</span><span class="morse-code">....</span></div>
+        <div class="morse-entry"><span class="morse-letter">I</span><span class="morse-code">..</span></div>
+        <div class="morse-entry"><span class="morse-letter">J</span><span class="morse-code">.---</span></div>
+        <div class="morse-entry"><span class="morse-letter">K</span><span class="morse-code">-.-</span></div>
+        <div class="morse-entry"><span class="morse-letter">L</span><span class="morse-code">.-..</span></div>
+        <div class="morse-entry"><span class="morse-letter">M</span><span class="morse-code">--</span></div>
+        <div class="morse-entry"><span class="morse-letter">N</span><span class="morse-code">-.</span></div>
+        <div class="morse-entry"><span class="morse-letter">O</span><span class="morse-code">---</span></div>
+        <div class="morse-entry"><span class="morse-letter">P</span><span class="morse-code">.--.</span></div>
+        <div class="morse-entry"><span class="morse-letter">Q</span><span class="morse-code">--.-</span></div>
+        <div class="morse-entry"><span class="morse-letter">R</span><span class="morse-code">.-.</span></div>
+        <div class="morse-entry"><span class="morse-letter">S</span><span class="morse-code">...</span></div>
+        <div class="morse-entry"><span class="morse-letter">T</span><span class="morse-code">-</span></div>
+        <div class="morse-entry"><span class="morse-letter">U</span><span class="morse-code">..-</span></div>
+        <div class="morse-entry"><span class="morse-letter">V</span><span class="morse-code">...-</span></div>
+        <div class="morse-entry"><span class="morse-letter">W</span><span class="morse-code">.--</span></div>
+        <div class="morse-entry"><span class="morse-letter">X</span><span class="morse-code">-..-</span></div>
+        <div class="morse-entry"><span class="morse-letter">Y</span><span class="morse-code">-.--</span></div>
+        <div class="morse-entry"><span class="morse-letter">Z</span><span class="morse-code">--..</span></div>
+        <div class="morse-entry"><span class="morse-letter">0</span><span class="morse-code">-----</span></div>
+        <div class="morse-entry"><span class="morse-letter">1</span><span class="morse-code">.----</span></div>
+        <div class="morse-entry"><span class="morse-letter">2</span><span class="morse-code">..---</span></div>
+        <div class="morse-entry"><span class="morse-letter">3</span><span class="morse-code">...--</span></div>
+        <div class="morse-entry"><span class="morse-letter">4</span><span class="morse-code">....-</span></div>
+        <div class="morse-entry"><span class="morse-letter">5</span><span class="morse-code">.....</span></div>
+        <div class="morse-entry"><span class="morse-letter">6</span><span class="morse-code">-....</span></div>
+        <div class="morse-entry"><span class="morse-letter">7</span><span class="morse-code">--...</span></div>
+        <div class="morse-entry"><span class="morse-letter">8</span><span class="morse-code">---..</span></div>
+        <div class="morse-entry"><span class="morse-letter">9</span><span class="morse-code">----.</span></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>ASM // KLUCZ SZYFRUJĄCY</span>
+      <span>ZNISZCZYĆ PO UŻYCIU</span>
+    </div>
+
+  </div>
+</body>
+</html>

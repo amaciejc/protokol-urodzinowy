@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Kartka urodzinowa — Agent Kuba</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #fff;
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      color: #111;
+    }
+
+    .page {
+      width: 148mm;
+      min-height: 210mm;
+      margin: 0 auto;
+      padding: 14mm 12mm;
+      border: 2px solid #111;
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #111;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+
+    .agency {
+      font-size: 9px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #444;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin: 6px 0 4px;
+    }
+
+    .subtitle {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #444;
+    }
+
+    .stamp {
+      display: inline-block;
+      border: 3px solid #cc0000;
+      padding: 3px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      transform: rotate(-8deg);
+      position: absolute;
+      top: 14mm;
+      right: 12mm;
+      opacity: 0.8;
+      color: #cc0000;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .label {
+      font-size: 8px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 2px;
+    }
+
+    .body-text {
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .steps {
+      font-size: 12px;
+      line-height: 1.8;
+      padding-left: 4px;
+    }
+
+    .steps li {
+      list-style: none;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .steps li::before {
+      content: attr(data-n) ".";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+    }
+
+    .code-box {
+      border: 2px solid #111;
+      padding: 10px 14px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .code-label {
+      font-size: 8px;
+      letter-spacing: 3px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .code-url {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px dashed #aaa;
+      margin: 8px 0;
+    }
+
+    .code-access {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 6px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      border-top: 1px solid #111;
+      padding-top: 8px;
+      font-size: 9px;
+      color: #666;
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 1px;
+    }
+
+    .birthday-line {
+      text-align: center;
+      font-size: 11px;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { border: 2px solid #111; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="stamp">TAJNE</div>
+
+    <div class="header">
+      <div class="agency">Agencja Specjalnych Misji</div>
+      <div class="title">BRIEFING</div>
+      <div class="subtitle">Dokument dla Agenta — poziom: ŚCIŚLE TAJNY</div>
+    </div>
+
+    <div class="birthday-line">
+      *** MISJA URODZINOWA — AGENT KUBA ***
+    </div>
+
+    <div class="section">
+      <div class="label">Komunikat od centrali</div>
+      <div class="body-text">
+        Agencie Kuba,<br><br>
+        Centrala przygotowała dla Ciebie specjalną misję urodzinową.
+        Czeka na Ciebie seria tajnych zadań do wykonania.
+        Powodzenia w terenie.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">Instrukcja uruchomienia protokołu</div>
+      <ol class="steps">
+        <li data-n="1">Wejdź na adres podany poniżej</li>
+        <li data-n="2">Wpisz swój KOD DOSTĘPU</li>
+        <li data-n="3">Wykonaj wszystkie misje</li>
+        <li data-n="4">Zdobądź kod i odblokuj swoje prezenty</li>
+      </ol>
+    </div>
+
+    <div class="section">
+      <div class="label">Dane dostępowe — nie udostępniaj</div>
+      <div class="code-box">
+        <div class="code-label">ADRES MISJI</div>
+        <div class="code-url">tinyurl.com/23p3lgfw</div>
+        <hr class="divider">
+        <div class="code-label">KOD DOSTĘPU</div>
+        <div class="code-access">KUBA2026</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>ASM // DOKUMENT JEDNORAZOWY</span>
+      <span>ZNISZCZYĆ PO UŻYCIU</span>
+    </div>
+
+  </div>
+</body>
+</html>
